@@ -9,7 +9,6 @@ import pickle
 import gzip
 import torch
 
-
 def load_dataset_file(filename):
     with gzip.open(filename, "rb") as f:
         loaded_object = pickle.load(f)
@@ -26,6 +25,7 @@ class SignTranslationDataset(data.Dataset):
     def __init__(
         self,
         path: str,
+        path_posestimation : str,
         fields: Tuple[RawField, RawField, Field, Field, Field],
         **kwargs
     ):
@@ -46,6 +46,9 @@ class SignTranslationDataset(data.Dataset):
                 ("sgn", fields[2]),
                 ("gls", fields[3]),
                 ("txt", fields[4]),
+                ("keypoints_face", fields[5]),
+                ("keypoints_body", fields[6]),
+                ("keypoints_hand", fields[7])
             ]
 
         if not isinstance(path, list):
@@ -76,13 +79,15 @@ class SignTranslationDataset(data.Dataset):
         examples = []
 
         for s in samples:
-
-            #sample_name = sample["name"].split('/')[1]
-            #sample_path = os.path.join(path_posestimation, sample_name)
-            #keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for ]
-
+            n_timesteps = sample["sign"].size()[0]
+            print("n_timesteps : ", n_timesteps)
+            sample_name = sample["name"].split('/')[1]
+            sample_path = os.path.join(path_posestimation, sample_name)
+            keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
             sample = samples[s]
-            print("sample : ", s, sample)
+
             examples.append(
                 data.Example.fromlist(
                     [
