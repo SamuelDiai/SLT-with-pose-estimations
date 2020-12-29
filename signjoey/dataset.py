@@ -8,6 +8,7 @@ from typing import List, Tuple
 import pickle
 import gzip
 import torch
+import os
 
 def load_dataset_file(filename):
     with gzip.open(filename, "rb") as f:
