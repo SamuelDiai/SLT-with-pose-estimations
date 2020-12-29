@@ -112,11 +112,15 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         lower=txt_lowercase,
         include_lengths=True,
     )
+    keypoints_face_field = data.RawField(),
+    keypoints_body_field = data.RawField(),
+    keypoints_hand_field = data.RawField(),
+
 
     train_data = SignTranslationDataset(
         path=train_paths,
         path_posestimation='/home/diai_samuel/slt/data/train_posestimation',
-        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field),
+        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
         filter_pred=lambda x: len(vars(x)["sgn"]) <= max_sent_length
         and len(vars(x)["txt"]) <= max_sent_length,
     )
@@ -155,7 +159,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
     dev_data = SignTranslationDataset(
         path=dev_paths,
         path_posestimation='/home/diai_samuel/slt/data/dev_posestimation',
-        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field),
+        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
     )
     random_dev_subset = data_cfg.get("random_dev_subset", -1)
     if random_dev_subset > -1:
@@ -170,7 +174,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
     test_data = SignTranslationDataset(
         path=test_paths,
         path_posestimation='/home/diai_samuel/slt/data/test_posestimation',
-        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field),
+        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
     )
 
     gls_field.vocab = gls_vocab
