@@ -74,8 +74,15 @@ class SignTranslationDataset(data.Dataset):
                     }
 
         examples = []
+
         for s in samples:
+
+            #sample_name = sample["name"].split('/')[1]
+            #sample_path = os.path.join(path_posestimation, sample_name)
+            #keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for ]
+
             sample = samples[s]
+            print("sample : ", s, sample)
             examples.append(
                 data.Example.fromlist(
                     [
