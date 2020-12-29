@@ -9,6 +9,7 @@ import pickle
 import gzip
 import torch
 import os
+import numpy as np
 
 def load_dataset_file(filename):
     with gzip.open(filename, "rb") as f:
