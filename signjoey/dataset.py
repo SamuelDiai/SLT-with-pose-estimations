@@ -26,7 +26,7 @@ class SignTranslationDataset(data.Dataset):
         self,
         path: str,
         path_posestimation : str,
-        fields: Tuple[RawField, RawField, Field, Field, Field],
+        fields: Tuple[RawField, RawField, Field, Field, Field, Field, Field, Field],
         **kwargs
     ):
         """Create a SignTranslationDataset given paths and fields.
