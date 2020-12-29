@@ -163,12 +163,14 @@ class TrainManager:
 
         self.use_cuda = train_config["use_cuda"]
         if self.use_cuda:
+            print("ITS USING CUDA ! ")
             self.model.cuda()
             if self.do_translation:
                 self.translation_loss_function.cuda()
             if self.do_recognition:
                 self.recognition_loss_function.cuda()
-
+        else :
+            print(" NOT USING CUDA ! ")
         # initialize training statistics
         self.steps = 0
         # stop training if this flag is True by reaching learning rate minimum
