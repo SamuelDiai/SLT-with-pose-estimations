@@ -97,9 +97,7 @@ class SignTranslationDataset(data.Dataset):
             print("Sample Name : ", sample_name)
             sample_path = os.path.join(path_posestimation, sample_name)
 
-            #keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in ]
-            #keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            #keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+
             pool = mp.Pool(processes = None)
             read_npy_file_path_timestep = functools.partial(read_npy_file, sample_path = sample_path, timestep = n_timesteps)
             res_npy = pool.map(read_npy_file_path_timestep, range(1, n_timesteps + 1))
@@ -107,6 +105,11 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = list(zipped_npy[0])
             keypoints_body = list(zipped_npy[1])
             keypoints_hand = list(zipped_npy[2])
+            print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
+
+            keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
             print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
             examples.append(
                 data.Example.fromlist(
