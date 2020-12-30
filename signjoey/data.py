@@ -128,7 +128,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         batch_first=True,
         include_lengths=True,
         postprocessing=stack_features,
-        pad_token=torch.zeros((pad_feature_size,))
+        pad_token=torch.zeros((2*84,))
     )
     keypoints_body_field = data.Field(
             use_vocab=False,
@@ -139,7 +139,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             batch_first=True,
             include_lengths=True,
             postprocessing=stack_features,
-            pad_token=torch.zeros((pad_feature_size,))
+            pad_token=torch.zeros((2*13,))
     )
     keypoints_hand_field = data.Field(
             use_vocab=False,
@@ -150,7 +150,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             batch_first=True,
             include_lengths=True,
             postprocessing=stack_features,
-            pad_token=torch.zeros((pad_feature_size,))
+            pad_token=torch.zeros((2*21,))
     )
 
 
