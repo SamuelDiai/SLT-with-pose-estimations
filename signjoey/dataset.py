@@ -10,21 +10,11 @@ import gzip
 import torch
 import os
 import numpy as np
-import functools
-import multiprocessing as mp
 
 def load_dataset_file(filename):
     with gzip.open(filename, "rb") as f:
         loaded_object = pickle.load(f)
         return loaded_object
-
-def read_npy_file(count, sample_path, timestep):
-    keypoints_hand = np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4))
-    keypoints_body = np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4))
-    keypoints_face = np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4))
-    return keypoints_face, keypoints_body, keypoints_hand
-
-
 
 class SignTranslationDataset(data.Dataset):
     """Defines a dataset for machine translation."""
@@ -94,19 +84,10 @@ class SignTranslationDataset(data.Dataset):
             sample = samples[s]
             n_timesteps = sample["sign"].size()[0]
             sample_name = sample["name"].split('/')[1]
-            print("Sample Name : ", sample_name)
-            sample_path = os.path.join(path_posestimation, sample_name)
-
-
-            pool = mp.Pool(processes = None)
-            read_npy_file_path_timestep = functools.partial(read_npy_file, sample_path = sample_path, timestep = n_timesteps)
-            res_npy = pool.map(read_npy_file_path_timestep, range(1, n_timesteps + 1))
-            zipped_npy = list(zip(*res_npy))
-            keypoints_face = list(zipped_npy[0])
-            keypoints_body = list(zipped_npy[1])
-            keypoints_hand = list(zipped_npy[2])
+            keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face.npy'))
+            keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body.npy'))
+            keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand.npy'))
             #print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
-            print(sample["sign"].size())
             examples.append(
                 data.Example.fromlist(
                     [
@@ -116,9 +97,9 @@ class SignTranslationDataset(data.Dataset):
                         sample["sign"] + 1e-8,
                         sample["gloss"].strip(),
                         sample["text"].strip(),
-                        #keypoints_face,
-                        #keypoints_body,
-                        #keypoints_hand
+                        keypoints_face,
+                        keypoints_body,
+                        keypoints_hand
 
                     ],
                     fields,
