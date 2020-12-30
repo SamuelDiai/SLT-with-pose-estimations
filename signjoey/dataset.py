@@ -87,6 +87,7 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face.npy'))
             keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body.npy'))
             keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand.npy'))
+            print(type(keypoints_face), keypoints_face.shape)
             #print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
             examples.append(
                 data.Example.fromlist(
