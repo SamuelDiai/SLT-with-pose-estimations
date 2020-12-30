@@ -75,6 +75,10 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         ft_list = torch.split(features, 1, dim=0)
         return [ft.squeeze() for ft in ft_list]
 
+    def flatten_features(features):
+        ft_list = torch.split(features, 1, dim=0)
+        return [ft.squeeze().flatten() for ft in ft_list]
+
     # NOTE (Cihan): The something was necessary to match the function signature.
     def stack_features(features, something):
         return torch.stack([torch.stack(ft, dim=0) for ft in features], dim=0)
@@ -118,33 +122,33 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         use_vocab=False,
         init_token=None,
         dtype=torch.float32,
-        preprocessing=tokenize_features,
+        preprocessing=flatten_features,
         tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
         batch_first=True,
         include_lengths=True,
-        postprocessing=postprocessing_,
+        postprocessing=stack_features,
         pad_token=torch.zeros((pad_feature_size,))
     )
     keypoints_body_field = data.Field(
             use_vocab=False,
             init_token=None,
             dtype=torch.float32,
-            preprocessing=tokenize_features,
+            preprocessing=flatten_features,
             tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
             batch_first=True,
             include_lengths=True,
-            postprocessing=postprocessing_,
+            postprocessing=stack_features,
             pad_token=torch.zeros((pad_feature_size,))
     )
     keypoints_hand_field = data.Field(
             use_vocab=False,
             init_token=None,
             dtype=torch.float32,
-            preprocessing=tokenize_features,
+            preprocessing=flatten_features,
             tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
             batch_first=True,
             include_lengths=True,
-            postprocessing=postprocessing_,
+            postprocessing=stack_features,
             pad_token=torch.zeros((pad_feature_size,))
     )
 
