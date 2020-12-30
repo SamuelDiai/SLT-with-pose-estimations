@@ -98,9 +98,9 @@ class SignTranslationDataset(data.Dataset):
                         sample["sign"] + 1e-8,
                         sample["gloss"].strip(),
                         sample["text"].strip(),
-                        torch.from_numpy(keypoints_face),
-                        torch.from_numpy(keypoints_body),
-                        torch.from_numpy(keypoints_hand)
+                        #torch.from_numpy(keypoints_face),
+                        #torch.from_numpy(keypoints_body),
+                        #torch.from_numpy(keypoints_hand)
 
                     ],
                     fields,
