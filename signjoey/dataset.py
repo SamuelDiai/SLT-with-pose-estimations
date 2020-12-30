@@ -103,7 +103,7 @@ class SignTranslationDataset(data.Dataset):
             pool = mp.Pool(processes = None)
             read_npy_file_path_timestep = functools.partial(read_npy_file, sample_path = sample_path, timestep = n_timesteps)
             res_npy = pool.map(read_npy_file_path_timestep, range(1, n_timesteps + 1))
-            zipped_npy = zip(*res_npy)
+            zipped_npy = list(zip(*res_npy))
             keypoints_face = list(zipped_npy[0])
             keypoints_body = list(zipped_npy[1])
             keypoints_hand = list(zipped_npy[2])
