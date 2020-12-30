@@ -100,7 +100,7 @@ class SignTranslationDataset(data.Dataset):
             #keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in ]
             #keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
             #keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            pool = mp.Pool(-1)
+            pool = mp.Pool(processes = None)
             read_npy_file_path_timestep = functools.partial(read_npy_file, sample_path = sample_path, timestep = n_timesteps)
             res = pool.map(read_npy_file_path_timestep, range(1, n_timesteps + 1))
             print(res)
