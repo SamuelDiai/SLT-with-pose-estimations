@@ -41,6 +41,10 @@ class Batch:
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
 
+        ## Concatenate sgn, hand, body, keypoints_face
+        print(self.sgn_lengths)
+        self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand, torch_batch.keypoints_body, torch_batch.keypoints_face])
+
         # Here be dragons
         if frame_subsampling_ratio:
             tmp_sgn = torch.zeros_like(self.sgn)
