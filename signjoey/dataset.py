@@ -10,11 +10,20 @@ import gzip
 import torch
 import os
 import numpy as np
+import functools
+import multiprocessing as mp
 
 def load_dataset_file(filename):
     with gzip.open(filename, "rb") as f:
         loaded_object = pickle.load(f)
         return loaded_object
+
+def read_npy_file(count, sample_path, timestep):
+    keypoints_hand = np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4))
+    keypoints_body = np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4))
+    keypoints_face = np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4))
+    return keypoints_face, keypoints_body, keypoints_hand
+
 
 
 class SignTranslationDataset(data.Dataset):
@@ -25,6 +34,7 @@ class SignTranslationDataset(data.Dataset):
         return data.interleave_keys(len(ex.sgn), len(ex.txt))
 
     def __init__(
+
         self,
         path: str,
         path_posestimation : str,
@@ -83,14 +93,17 @@ class SignTranslationDataset(data.Dataset):
         for s in samples:
             sample = samples[s]
             n_timesteps = sample["sign"].size()[0]
-            print("n_timesteps : ", n_timesteps, "full : ", sample["sign"].size())
             sample_name = sample["name"].split('/')[1]
+            print("Sample Name : ", sample_name)
             sample_path = os.path.join(path_posestimation, sample_name)
-            keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
 
-
+            #keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in ]
+            #keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            #keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
+            pool = mp.Pool(-1)
+            read_npy_file_path_timestep = functools.partial(read_npy_file, sample_path = sample_path, timestep = n_timesteps)
+            res = pool.map(read_npy_file_path_timestep, range(1, n_timesteps + 1))
+            print(res)
             examples.append(
                 data.Example.fromlist(
                     [
@@ -100,6 +113,10 @@ class SignTranslationDataset(data.Dataset):
                         sample["sign"] + 1e-8,
                         sample["gloss"].strip(),
                         sample["text"].strip(),
+                        keypoints_face,
+                        keypoints_body,
+                        keypoints_hand
+
                     ],
                     fields,
                 )
