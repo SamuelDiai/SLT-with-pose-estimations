@@ -48,9 +48,9 @@ class SignTranslationDataset(data.Dataset):
                 ("sgn", fields[2]),
                 ("gls", fields[3]),
                 ("txt", fields[4]),
-                ("keypoints_face", fields[5]),
-                ("keypoints_body", fields[6]),
-                ("keypoints_hand", fields[7])
+                #("keypoints_face", fields[5]),
+                #("keypoints_body", fields[6]),
+                #("keypoints_hand", fields[7])
             ]
 
         if not isinstance(path, list):
