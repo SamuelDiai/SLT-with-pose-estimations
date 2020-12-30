@@ -105,12 +105,8 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = list(zipped_npy[0])
             keypoints_body = list(zipped_npy[1])
             keypoints_hand = list(zipped_npy[2])
-            print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
+            #print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
 
-            keypoints_hand = [np.load(sample_path + '/images%s_hand.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            keypoints_body = [np.load(sample_path + '/images%s_body.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            keypoints_face = [np.load(sample_path + '/images%s_face.npy' % str(count).zfill(4)) for count in range(1, n_timesteps + 1)]
-            print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
             examples.append(
                 data.Example.fromlist(
                     [
@@ -120,9 +116,9 @@ class SignTranslationDataset(data.Dataset):
                         sample["sign"] + 1e-8,
                         sample["gloss"].strip(),
                         sample["text"].strip(),
-                        keypoints_face,
-                        keypoints_body,
-                        keypoints_hand
+                        #keypoints_face,
+                        #keypoints_body,
+                        #keypoints_hand
 
                     ],
                     fields,
