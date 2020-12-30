@@ -377,6 +377,7 @@ class TrainManager:
             for batch in iter(train_iter):
                 # reactivate training
                 # create a Batch object from torchtext batch
+                print(batch)
                 batch = Batch(
                     is_train=True,
                     torch_batch=batch,
