@@ -112,15 +112,15 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         lower=txt_lowercase,
         include_lengths=True,
     )
-    keypoints_face_field = data.RawField(),
-    keypoints_body_field = data.RawField(),
-    keypoints_hand_field = data.RawField(),
+    keypoints_face_field = data.Field(),
+    keypoints_body_field = data.Field(),
+    keypoints_hand_field = data.Field(),
 
 
     train_data = SignTranslationDataset(
         path=train_paths,
         path_posestimation='/home/diai_samuel/slt/data/train_posestimation',
-        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
+        fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field),#, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
         filter_pred=lambda x: len(vars(x)["sgn"]) <= max_sent_length
         and len(vars(x)["txt"]) <= max_sent_length,
     )
