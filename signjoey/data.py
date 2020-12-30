@@ -118,7 +118,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         use_vocab=False,
         init_token=None,
         dtype=torch.float32,
-        #preprocessing=tokenize_features,
+        preprocessing=tokenize_features,
         tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
         batch_first=True,
         include_lengths=True,
@@ -129,7 +129,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             use_vocab=False,
             init_token=None,
             dtype=torch.float32,
-            #preprocessing=tokenize_features,
+            preprocessing=tokenize_features,
             tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
             batch_first=True,
             include_lengths=True,
@@ -140,7 +140,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             use_vocab=False,
             init_token=None,
             dtype=torch.float32,
-            #preprocessing=tokenize_features,
+            preprocessing=tokenize_features,
             tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
             batch_first=True,
             include_lengths=True,
