@@ -112,9 +112,39 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         lower=txt_lowercase,
         include_lengths=True,
     )
-    keypoints_face_field = data.Field(),
-    keypoints_body_field = data.Field(),
-    keypoints_hand_field = data.Field(),
+    keypoints_face_field = data.Field(
+        use_vocab=False,
+        init_token=None,
+        dtype=torch.float32,
+        preprocessing=tokenize_features,
+        tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
+        batch_first=True,
+        include_lengths=True,
+        postprocessing=stack_features,
+        pad_token=torch.zeros((pad_feature_size,))
+    )
+    keypoints_body_field = data.Field(
+            use_vocab=False,
+            init_token=None,
+            dtype=torch.float32,
+            preprocessing=tokenize_features,
+            tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
+            batch_first=True,
+            include_lengths=True,
+            postprocessing=stack_features,
+            pad_token=torch.zeros((pad_feature_size,))
+    )
+    keypoints_hand_field = data.Field(
+            use_vocab=False,
+            init_token=None,
+            dtype=torch.float32,
+            preprocessing=tokenize_features,
+            tokenize=lambda features: features,  # TODO (Cihan): is this necessary?
+            batch_first=True,
+            include_lengths=True,
+            postprocessing=stack_features,
+            pad_token=torch.zeros((pad_feature_size,))
+    )
 
 
     train_data = SignTranslationDataset(

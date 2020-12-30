@@ -48,9 +48,9 @@ class SignTranslationDataset(data.Dataset):
                 ("sgn", fields[2]),
                 ("gls", fields[3]),
                 ("txt", fields[4]),
-                #("keypoints_face", fields[5]),
-                #("keypoints_body", fields[6]),
-                #("keypoints_hand", fields[7])
+                ("keypoints_face", fields[5]),
+                ("keypoints_body", fields[6]),
+                ("keypoints_hand", fields[7])
             ]
 
         if not isinstance(path, list):
@@ -87,8 +87,6 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face.npy'))
             keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body.npy'))
             keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand.npy'))
-            print(type(keypoints_face), keypoints_face.shape, print(type(sample["sign"])))
-            #print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
             examples.append(
                 data.Example.fromlist(
                     [
@@ -98,9 +96,9 @@ class SignTranslationDataset(data.Dataset):
                         sample["sign"] + 1e-8,
                         sample["gloss"].strip(),
                         sample["text"].strip(),
-                        #torch.from_numpy(keypoints_face),
-                        #torch.from_numpy(keypoints_body),
-                        #torch.from_numpy(keypoints_hand)
+                        torch.from_numpy(keypoints_face),
+                        torch.from_numpy(keypoints_body),
+                        torch.from_numpy(keypoints_hand)
 
                     ],
                     fields,
