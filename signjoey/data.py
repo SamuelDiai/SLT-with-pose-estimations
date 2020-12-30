@@ -81,7 +81,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
 
     # NOTE (Cihan): The something was necessary to match the function signature.
     def stack_features(features, something):
-        print("FEATURES : ", features, features.size())
+        print("FEATURES : ", features, features[0].size())
         return torch.stack([torch.stack(ft, dim=0) for ft in features], dim=0)
 
     def postprocessing_(features, something):
