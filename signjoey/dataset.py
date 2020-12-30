@@ -107,7 +107,7 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = list(zipped_npy[0])
             keypoints_body = list(zipped_npy[1])
             keypoints_hand = list(zipped_npy[2])
-            print(type(keypoints_face), keypoints_face[0])
+            print(type(keypoints_face), type(keypoints_face[0]), keypoints_face[0])
             examples.append(
                 data.Example.fromlist(
                     [
