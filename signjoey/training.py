@@ -341,7 +341,7 @@ class TrainManager:
         if self.use_cuda:
             self.model.cuda()
 
-    def train_and_validate(self, train_data: Dataset, valid_data: Dataset) -> None:
+    def train_and_validate(self, train_data: Dataset, valid_data: Dataset, fusion_type = cfg["fusion_type"]: str) -> None:
         """
         Train the model and validate it from time to time on the validation set.
 
@@ -385,6 +385,7 @@ class TrainManager:
                     frame_subsampling_ratio=self.frame_subsampling_ratio,
                     random_frame_subsampling=self.random_frame_subsampling,
                     random_frame_masking_ratio=self.random_frame_masking_ratio,
+                    fusion_type = fusion_type
                 )
 
                 # only update every batch_multiplier batches
@@ -982,13 +983,17 @@ def train(cfg_file: str) -> None:
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
+    if cfg["fusion_type"] == 'early_fusion':
+        add_dim = 2*84 + 2*21 + 2*13
+    else :
+        add_dim = 0
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
-        sgn_dim=sum(cfg["data"]["feature_size"]) + 2*84 + 2*21 + 2*13
+        sgn_dim=sum(cfg["data"]["feature_size"]) + add_dim
         if isinstance(cfg["data"]["feature_size"], list)
-        else cfg["data"]["feature_size"] + 2*84 + 2*21 + 2*13,
+        else cfg["data"]["feature_size"] + add_dim,
         do_recognition=do_recognition,
         do_translation=do_translation,
     )
@@ -1020,7 +1025,7 @@ def train(cfg_file: str) -> None:
     txt_vocab.to_file(txt_vocab_file)
 
     # train the model
-    trainer.train_and_validate(train_data=train_data, valid_data=dev_data)
+    trainer.train_and_validate(train_data=train_data, valid_data=dev_data, fusion_type = cfg["fusion_type"])
     # Delete to speed things up as we don't need training data anymore
     del train_data, dev_data, test_data
 

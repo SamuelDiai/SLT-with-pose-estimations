@@ -20,6 +20,7 @@ class Batch:
         frame_subsampling_ratio: int = None,
         random_frame_subsampling: bool = None,
         random_frame_masking_ratio: float = None,
+        fusion_type
     ):
         """
         Create a new joey batch from a torch batch.
@@ -41,8 +42,9 @@ class Batch:
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
         # Concat with pose estimations :
-        self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
-        self.sgn_dim = sgn_dim + 2*84 + 2*21 + 2*13
+        if fusion_type == 'early_fusion':
+            self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
+            self.sgn_dim = sgn_dim + 2*84 + 2*21 + 2*13
         # Here be dragons
         if frame_subsampling_ratio:
             tmp_sgn = torch.zeros_like(self.sgn)
