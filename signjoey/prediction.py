@@ -45,6 +45,7 @@ def validate_on_data(
     translation_max_output_length: int,
     level: str,
     txt_pad_index: int,
+    fusion_type :str,
     recognition_beam_size: int = 1,
     translation_beam_size: int = 1,
     translation_beam_alpha: int = -1,
@@ -128,6 +129,7 @@ def validate_on_data(
                 torch_batch=valid_batch,
                 txt_pad_index=txt_pad_index,
                 sgn_dim=sgn_dim,
+                fusion_type=fusion_type,
                 use_cuda=use_cuda,
                 frame_subsampling_ratio=frame_subsampling_ratio,
             )
@@ -402,6 +404,7 @@ def test(
                 if isinstance(cfg["data"]["feature_size"], list)
                 else cfg["data"]["feature_size"],
                 txt_pad_index=txt_vocab.stoi[PAD_TOKEN],
+                fusion_type=cfg["fusion_type"],
                 # Recognition Parameters
                 do_recognition=do_recognition,
                 recognition_loss_function=recognition_loss_function,
@@ -460,6 +463,7 @@ def test(
                     batch_size=batch_size,
                     use_cuda=use_cuda,
                     level=level,
+                    fusion_type=cfg["fusion_type"],
                     sgn_dim=sum(cfg["data"]["feature_size"])
                     if isinstance(cfg["data"]["feature_size"], list)
                     else cfg["data"]["feature_size"],
@@ -564,6 +568,7 @@ def test(
         use_cuda=use_cuda,
         batch_type=batch_type,
         dataset_version=dataset_version,
+        fusion_type=cfg["fusion_type"],
         sgn_dim=sum(cfg["data"]["feature_size"])
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"],
