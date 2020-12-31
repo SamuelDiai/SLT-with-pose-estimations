@@ -294,7 +294,7 @@ class SignModel(nn.Module):
                 sgn_mask=batch.sgn_mask,
                 sgn_lengths=batch.sgn_lengths,
                 txt_input=batch.txt_input,
-                txt_mask=batch.txt_mask,
+                txt_mask=batch.txt_mask
             )
             if self.do_recognition:
                 assert gloss_probabilities is not None

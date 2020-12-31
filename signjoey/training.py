@@ -753,7 +753,7 @@ class TrainManager:
             else None,
             translation_loss_weight=self.translation_loss_weight
             if self.do_translation
-            else None,
+            else None
         )
 
         # normalize translation loss
