@@ -75,7 +75,8 @@ class Batch:
                 features[mask_frame_idx, :] = 1e-8
                 tmp_sgn[idx] = features
             self.sgn = tmp_sgn
-        self.sgn_mask = (self.sgn != torch.zeros(sgn_dim))[..., 0].unsqueeze(1)
+
+        self.sgn_mask = (self.sgn != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
 
         # Text
         self.txt = None
