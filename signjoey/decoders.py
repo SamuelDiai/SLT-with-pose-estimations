@@ -521,6 +521,9 @@ class TransformerDecoder(Decoder):
 
     def forward(
         self,
+        hand : Tensor,
+        body : Tensor,
+        face : Tensor,
         trg_embed: Tensor = None,
         encoder_output: Tensor = None,
         encoder_hidden: Tensor = None,
@@ -528,9 +531,6 @@ class TransformerDecoder(Decoder):
         unroll_steps: int = None,
         hidden: Tensor = None,
         trg_mask: Tensor = None,
-        hand : Tensor,
-        body : Tensor,
-        face : Tensor,
         **kwargs
     ):
         """
