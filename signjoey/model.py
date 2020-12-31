@@ -6,7 +6,7 @@ tf.config.set_visible_devices([], "GPU")
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-
+import torch
 from itertools import groupby
 from signjoey.initialization import initialize_model
 from signjoey.embeddings import Embeddings, SpatialEmbeddings
@@ -285,7 +285,7 @@ class SignModel(nn.Module):
         :return: stacked_output: hypotheses for batch,
             stacked_attention_scores: attention scores for batch
         """
-        if fusion_type == 'late_fusion':
+        if fusion_type == 'late_fusion' or fusion_type == 'mid_fusion':
             hand = batch.keypoints_hand
             body = batch.keypoints_body
             face = batch.keypoints_face
@@ -300,6 +300,8 @@ class SignModel(nn.Module):
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
+            if  fusion_type == 'mid_fusion':
+                encoder_output = torch.cat([encoder_output, hand, body, face], dim = 2)
             gloss_scores = self.gloss_output_layer(encoder_output)
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
