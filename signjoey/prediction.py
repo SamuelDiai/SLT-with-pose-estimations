@@ -331,7 +331,7 @@ def test(
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
-    if cfg["fusion_type"] == 'early_fusion':
+    if cfg["model"]["fusion_type"] == 'early_fusion':
         add_dim = 2*84 + 2*21 + 2*13
     else :
         add_dim = 0
@@ -408,7 +408,7 @@ def test(
                 if isinstance(cfg["data"]["feature_size"], list)
                 else cfg["data"]["feature_size"],
                 txt_pad_index=txt_vocab.stoi[PAD_TOKEN],
-                fusion_type=cfg["fusion_type"],
+                fusion_type=cfg['model']["fusion_type"],
                 # Recognition Parameters
                 do_recognition=do_recognition,
                 recognition_loss_function=recognition_loss_function,
@@ -467,7 +467,7 @@ def test(
                     batch_size=batch_size,
                     use_cuda=use_cuda,
                     level=level,
-                    fusion_type=cfg["fusion_type"],
+                    fusion_type=cfg["model"]["fusion_type"],
                     sgn_dim=sum(cfg["data"]["feature_size"])
                     if isinstance(cfg["data"]["feature_size"], list)
                     else cfg["data"]["feature_size"],
@@ -572,7 +572,7 @@ def test(
         use_cuda=use_cuda,
         batch_type=batch_type,
         dataset_version=dataset_version,
-        fusion_type=cfg["fusion_type"],
+        fusion_type=cfg["model"]["fusion_type"],
         sgn_dim=sum(cfg["data"]["feature_size"])
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"],
