@@ -40,7 +40,7 @@ class Batch:
         self.signer = torch_batch.signer
 
         # Concat with pose estimations :
-        torch_batch.sgn = torch.cat([torch_batch.sgn, torch_batch.keypoints_hand, torch_batch.keypoints_body, torch_batch.keypoints_face], dim = 2)
+        torch_batch.sgn = tuple([torch.cat([torch_batch.sgn[elem], torch_batch.keypoints_hand[elem], torch_batch.keypoints_body[elem], torch_batch.keypoints_face[elem]], dim = 2) for elem in range(len(torch_batch.sgn))])
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
         # Here be dragons
