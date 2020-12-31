@@ -560,7 +560,7 @@ class TransformerDecoder(Decoder):
         x = self.layer_norm(x)
         ### Concat for late fusion :
         print(hand, body, face)
-        if hand is not None and body is not None and face is not None:
+        if hand[0] is not None and body[0] is not None and face[0] is not None:
 
             x = torch.cat([x, hand, body, face], dim = 2)
         print("X SHAPE : ", x.size())
