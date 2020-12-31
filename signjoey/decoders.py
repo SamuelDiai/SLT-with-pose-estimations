@@ -12,7 +12,6 @@ from signjoey.attention import BahdanauAttention, LuongAttention
 from signjoey.encoders import Encoder
 from signjoey.helpers import freeze_params, subsequent_mask
 from signjoey.transformer_layers import PositionalEncoding, TransformerDecoderLayer
-import copy
 
 # pylint: disable=abstract-method
 class Decoder(nn.Module):
@@ -566,8 +565,8 @@ class TransformerDecoder(Decoder):
             x = self.emb_dropout(x)
 
             trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
-            trg_mask_pose = copy.deepcopy(trg_mask)
-            x_pose = copy.deepcopy(x)
+            trg_mask_pose = trg_mask.detach().clone()
+            x_pose = x.detach().clone()
             for layer in self.layers:
                 x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
                 x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_mask, trg_mask=trg_mask)
