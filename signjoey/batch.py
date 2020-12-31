@@ -20,7 +20,7 @@ class Batch:
         frame_subsampling_ratio: int = None,
         random_frame_subsampling: bool = None,
         random_frame_masking_ratio: float = None,
-        fusion_type
+        fusion_type : str = None
     ):
         """
         Create a new joey batch from a torch batch.
