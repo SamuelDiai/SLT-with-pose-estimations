@@ -50,6 +50,8 @@ class Batch:
             self.sgn_dim = sgn_dim + 2*84 + 2*21 + 2*13
         else :
             self.sgn_dim = sgn_dim
+            if fusion_type == 'late_fusion':
+                self.pose_estim = torch.cat([torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
         # Here be dragons
         if frame_subsampling_ratio:
             tmp_sgn = torch.zeros_like(self.sgn)
