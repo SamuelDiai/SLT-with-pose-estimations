@@ -572,8 +572,8 @@ class TransformerDecoder(Decoder):
                 x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_mask, trg_mask=trg_mask)
             x = self.layer_norm(x)
             x_pose = self.layer_norm(x_pose)
-            print("CONCAT : ", torch.cat([x, x_pose], dim = 1).size())
-            output = self.output_layer(torch.cat([x, x_pose], dim = 1))
+            print("CONCAT : ", torch.cat([x, x_pose], dim = 2).size())
+            output = self.output_layer(torch.cat([x, x_pose], dim = 2))
 
             return output, x, None, None
 
