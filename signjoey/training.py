@@ -985,7 +985,7 @@ def train(cfg_file: str) -> None:
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
-    if cfg["fusion_type"] == 'early_fusion':
+    if cfg["model"]["fusion_type"] == 'early_fusion':
         add_dim = 2*84 + 2*21 + 2*13
     else :
         add_dim = 0
@@ -1027,7 +1027,7 @@ def train(cfg_file: str) -> None:
     txt_vocab.to_file(txt_vocab_file)
 
     # train the model
-    trainer.train_and_validate(train_data=train_data, valid_data=dev_data, fusion_type = cfg["fusion_type"])
+    trainer.train_and_validate(train_data=train_data, valid_data=dev_data, fusion_type = cfg["model"]["fusion_type"])
     # Delete to speed things up as we don't need training data anymore
     del train_data, dev_data, test_data
 
