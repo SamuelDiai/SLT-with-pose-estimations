@@ -84,7 +84,9 @@ class SignModel(nn.Module):
         hand : Tensor,
         body : Tensor,
         face : Tensor,
+        fusion_type : str,
         txt_mask: Tensor = None,
+
 
     ) -> (Tensor, Tensor, Tensor, Tensor):
         """
@@ -101,9 +103,9 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
         )
-        print("HAND SHAPE :", hand.size())
-        print("encoder_output.size : ", encoder_output.size())
         if self.do_recognition:
+            if fusion_type == 'mid_fusion':
+                encoder_output = torch.cat([encoder_output, hand, body, face])
             # Gloss Recognition Part
             # N x T x C
             gloss_scores = self.gloss_output_layer(encoder_output)
@@ -210,7 +212,7 @@ class SignModel(nn.Module):
         # pylint: disable=unused-variable
 
         # Do a forward pass
-        if fusion_type == 'late_fusion':
+        if fusion_type == 'late_fusion' or fusion_type == 'mid_fusion':
             hand = batch.keypoints_hand
             body = batch.keypoints_body
             face = batch.keypoints_face
@@ -227,7 +229,8 @@ class SignModel(nn.Module):
             txt_mask=batch.txt_mask,
             hand = hand,
             body = body,
-            face = face
+            face = face,
+            fusion_type = fusion_type
         )
 
         if self.do_recognition:
