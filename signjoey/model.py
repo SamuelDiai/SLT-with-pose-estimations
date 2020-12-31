@@ -101,7 +101,7 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
         )
-        print("encoder_output.size : ", encoder_output.size(), "encoder_hidden.size : ", encoder_hidden.size())
+        print("encoder_output.size : ", encoder_output.size())
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
