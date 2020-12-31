@@ -395,7 +395,7 @@ class TrainManager:
                 update = count == 0
 
                 recognition_loss, translation_loss = self._train_batch(
-                    batch, update=update, fusion_type=fusion_type
+                    batch=batch, update=update, fusion_type=fusion_type
                 )
 
                 if self.do_recognition:
@@ -729,7 +729,7 @@ class TrainManager:
 
         self.tb_writer.close()  # close Tensorboard writer
 
-    def _train_batch(self, batch: Batch, update: bool = True, fusion_type : str) -> (Tensor, Tensor):
+    def _train_batch(self, fusion_type : str, batch: Batch, update: bool = True) -> (Tensor, Tensor):
         """
         Train the model on one batch: Compute the loss, make a gradient step.
 
