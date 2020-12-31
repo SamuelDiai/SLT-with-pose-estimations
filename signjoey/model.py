@@ -78,9 +78,11 @@ class SignModel(nn.Module):
     def forward(
         self,
         sgn: Tensor,
+        pose_estim : Tensor,
         sgn_mask: Tensor,
         sgn_lengths: Tensor,
         txt_input: Tensor,
+        fusion_type : str,
         txt_mask: Tensor = None,
     ) -> (Tensor, Tensor, Tensor, Tensor):
         """
@@ -94,35 +96,80 @@ class SignModel(nn.Module):
         :param txt_mask: target mask
         :return: decoder outputs
         """
-        encoder_output, encoder_hidden = self.encode(
-            sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
-        )
-
-        if self.do_recognition:
-            # Gloss Recognition Part
-            # N x T x C
-            gloss_scores = self.gloss_output_layer(encoder_output)
-            # N x T x C
-            gloss_probabilities = gloss_scores.log_softmax(2)
-            # Turn it into T x N x C
-            gloss_probabilities = gloss_probabilities.permute(1, 0, 2)
-        else:
-            gloss_probabilities = None
-
-        if self.do_translation:
-            unroll_steps = txt_input.size(1)
-            decoder_outputs = self.decode(
-                encoder_output=encoder_output,
-                encoder_hidden=encoder_hidden,
-                sgn_mask=sgn_mask,
-                txt_input=txt_input,
-                unroll_steps=unroll_steps,
-                txt_mask=txt_mask,
+        if fusion_type != 'late_fusion':
+            encoder_output, encoder_hidden = self.encode(
+                sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
             )
-        else:
-            decoder_outputs = None
 
-        return decoder_outputs, gloss_probabilities
+            if self.do_recognition:
+                # Gloss Recognition Part
+                # N x T x C
+                gloss_scores = self.gloss_output_layer(encoder_output)
+                # N x T x C
+                gloss_probabilities = gloss_scores.log_softmax(2)
+                # Turn it into T x N x C
+                gloss_probabilities = gloss_probabilities.permute(1, 0, 2)
+            else:
+                gloss_probabilities = None
+
+            if self.do_translation:
+                unroll_steps = txt_input.size(1)
+                decoder_outputs = self.decode(
+                    encoder_output=encoder_output,
+                    encoder_hidden=encoder_hidden,
+                    encoder_output_pose=None,
+                    encoder_hidden_pose=None,
+                    fusion_type=fusion_type,
+                    sgn_mask=sgn_mask,
+                    txt_input=txt_input,
+                    unroll_steps=unroll_steps,
+                    txt_mask=txt_mask,
+                )
+            else:
+                decoder_outputs = None
+
+            return decoder_outputs, gloss_probabilities, _
+        else :
+            encoder_output, encoder_hidden = self.encode(
+                sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
+            )
+            encoder_output_pose, encoder_hidden_pose = self.encode(
+                sgn=pose_estim, sgn_mask=sgn_mask, sgn_length=sgn_lengths
+            )
+            if self.do_recognition:
+                # Gloss Recognition Part
+                # N x T x C
+                gloss_scores = self.gloss_output_layer(encoder_output)
+                # N x T x C
+                gloss_probabilities = gloss_scores.log_softmax(2)
+                # Turn it into T x N x C
+                gloss_probabilities = gloss_probabilities.permute(1, 0, 2)
+
+                gloss_scores_pose = self.gloss_output_layer(encoder_output_pose)
+                # N x T x C
+                gloss_probabilities_pose = gloss_scores_pose.log_softmax(2)
+                # Turn it into T x N x C
+                gloss_probabilities_pose = gloss_probabilities_pose.permute(1, 0, 2)
+            else:
+                gloss_probabilities = None
+                gloss_probabilities_pose = None
+
+            if self.do_translation:
+                unroll_steps = txt_input.size(1)
+                decoder_outputs = self.decode(
+                    encoder_output=encoder_output,
+                    encoder_hidden=encoder_hidden,
+                    encoder_output_pose=encoder_output_pose,
+                    encoder_hidden_pose=encoder_hidden_pose,
+                    fusion_type=fusion_type,
+                    sgn_mask=sgn_mask,
+                    txt_input=txt_input,
+                    unroll_steps=unroll_steps,
+                    txt_mask=txt_mask,
+                )
+            else:
+                decoder_outputs = None
+                return decoder_outputs, gloss_probabilities, gloss_probabilities_pose
 
     def encode(
         self, sgn: Tensor, sgn_mask: Tensor, sgn_length: Tensor
@@ -145,6 +192,9 @@ class SignModel(nn.Module):
         self,
         encoder_output: Tensor,
         encoder_hidden: Tensor,
+        encoder_output_pose : Tensor,
+        encoder_hidden_pose : Tensor,
+        fusion_type:str,
         sgn_mask: Tensor,
         txt_input: Tensor,
         unroll_steps: int,
@@ -166,6 +216,9 @@ class SignModel(nn.Module):
         return self.decoder(
             encoder_output=encoder_output,
             encoder_hidden=encoder_hidden,
+            encoder_output_pose=encoder_output_pose,
+            encoder_hidden_pose=encoder_hidden_pose,
+            fusion_type=fusion_type,
             src_mask=sgn_mask,
             trg_embed=self.txt_embed(x=txt_input, mask=txt_mask),
             trg_mask=txt_mask,
@@ -176,6 +229,7 @@ class SignModel(nn.Module):
     def get_loss_for_batch(
         self,
         batch: Batch,
+        fusion_type : fusion_type,
         recognition_loss_function: nn.Module,
         translation_loss_function: nn.Module,
         recognition_loss_weight: float,
@@ -195,40 +249,90 @@ class SignModel(nn.Module):
         # pylint: disable=unused-variable
 
         # Do a forward pass
-        decoder_outputs, gloss_probabilities = self.forward(
-            sgn=batch.sgn,
-            sgn_mask=batch.sgn_mask,
-            sgn_lengths=batch.sgn_lengths,
-            txt_input=batch.txt_input,
-            txt_mask=batch.txt_mask,
-        )
+        if fusion_type != 'late_fusion':
+            decoder_outputs, gloss_probabilities, _ = self.forward(
+                sgn=batch.sgn,
+                pose_estim=None,
+                fusion_type=fusion_type,
+                sgn_mask=batch.sgn_mask,
+                sgn_lengths=batch.sgn_lengths,
+                txt_input=batch.txt_input,
+                txt_mask=batch.txt_mask,
+            )
 
-        if self.do_recognition:
-            assert gloss_probabilities is not None
-            # Calculate Recognition Loss
-            recognition_loss = (
-                recognition_loss_function(
-                    gloss_probabilities,
-                    batch.gls,
-                    batch.sgn_lengths.long(),
-                    batch.gls_lengths.long(),
+            if self.do_recognition:
+                assert gloss_probabilities is not None
+                # Calculate Recognition Loss
+                recognition_loss = (
+                    recognition_loss_function(
+                        gloss_probabilities,
+                        batch.gls,
+                        batch.sgn_lengths.long(),
+                        batch.gls_lengths.long(),
+                    )
+                    * recognition_loss_weight
                 )
-                * recognition_loss_weight
-            )
-        else:
-            recognition_loss = None
+            else:
+                recognition_loss = None
 
-        if self.do_translation:
-            assert decoder_outputs is not None
-            word_outputs, _, _, _ = decoder_outputs
-            # Calculate Translation Loss
-            txt_log_probs = F.log_softmax(word_outputs, dim=-1)
-            translation_loss = (
-                translation_loss_function(txt_log_probs, batch.txt)
-                * translation_loss_weight
+            if self.do_translation:
+                assert decoder_outputs is not None
+                word_outputs, _, _, _ = decoder_outputs
+                # Calculate Translation Loss
+                txt_log_probs = F.log_softmax(word_outputs, dim=-1)
+                translation_loss = (
+                    translation_loss_function(txt_log_probs, batch.txt)
+                    * translation_loss_weight
+                )
+            else:
+                translation_loss = None
+        else :
+            decoder_outputs,  gloss_probabilities, gloss_probabilities_pose = self.forward(
+                fusion_type='late_fusion',
+                sgn=batch.sgn,
+                pose_estim=batch.pose_estim,
+                sgn_mask=batch.sgn_mask,
+                sgn_lengths=batch.sgn_lengths,
+                txt_input=batch.txt_input,
+                txt_mask=batch.txt_mask,
             )
-        else:
-            translation_loss = None
+            if self.do_recognition:
+                assert gloss_probabilities is not None
+                assert gloss_probabilities_pose is not None
+                # Calculate Recognition Loss
+                recognition_loss = (
+                    recognition_loss_function(
+                        gloss_probabilities,
+                        batch.gls,
+                        batch.sgn_lengths.long(),
+                        batch.gls_lengths.long(),
+                    )
+                    * recognition_loss_weight
+                )
+                recognition_loss_pose = (
+                    recognition_loss_function(
+                        gloss_probabilities_pose,
+                        batch.gls,
+                        batch.sgn_lengths.long(),
+                        batch.gls_lengths.long(),
+                    )
+                    * recognition_loss_weight
+                )
+                recognition_loss += recognition_loss_pose
+            else:
+                recognition_loss = None
+
+            if self.do_translation:
+                assert decoder_outputs is not None
+                word_outputs, _, _, _ = decoder_outputs
+                # Calculate Translation Loss
+                txt_log_probs = F.log_softmax(word_outputs, dim=-1)
+                translation_loss = (
+                    translation_loss_function(txt_log_probs, batch.txt)
+                    * translation_loss_weight
+                )
+            else:
+                translation_loss = None
 
         return recognition_loss, translation_loss
 

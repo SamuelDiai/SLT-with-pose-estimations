@@ -12,7 +12,7 @@ from signjoey.attention import BahdanauAttention, LuongAttention
 from signjoey.encoders import Encoder
 from signjoey.helpers import freeze_params, subsequent_mask
 from signjoey.transformer_layers import PositionalEncoding, TransformerDecoderLayer
-
+import copy
 
 # pylint: disable=abstract-method
 class Decoder(nn.Module):
@@ -466,6 +466,7 @@ class TransformerDecoder(Decoder):
 
     def __init__(
         self,
+        fusion_type : str,
         num_layers: int = 4,
         num_heads: int = 8,
         hidden_size: int = 512,
@@ -511,8 +512,10 @@ class TransformerDecoder(Decoder):
         self.layer_norm = nn.LayerNorm(hidden_size, eps=1e-6)
 
         self.emb_dropout = nn.Dropout(p=emb_dropout)
-        self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
-
+        if fusion_type != 'late_fusion':
+            self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
+        else :
+            self.output_layer = nn.Linear(2*hidden_size, vocab_size, bias=False)
         if freeze:
             freeze_params(self)
 
@@ -521,6 +524,9 @@ class TransformerDecoder(Decoder):
         trg_embed: Tensor = None,
         encoder_output: Tensor = None,
         encoder_hidden: Tensor = None,
+        encoder_output_pose : Tensor = None,
+        encoder_hidden_pose : Tensor = None,
+        fusion_type : Tensor = None,
         src_mask: Tensor = None,
         unroll_steps: int = None,
         hidden: Tensor = None,
@@ -542,19 +548,35 @@ class TransformerDecoder(Decoder):
         :return:
         """
         assert trg_mask is not None, "trg_mask required for Transformer"
+        if fusion_type != 'late_fusion':
+            x = self.pe(trg_embed)  # add position encoding to word embedding
+            x = self.emb_dropout(x)
 
-        x = self.pe(trg_embed)  # add position encoding to word embedding
-        x = self.emb_dropout(x)
+            trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
 
-        trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
+            for layer in self.layers:
+                x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
 
-        for layer in self.layers:
-            x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
+            x = self.layer_norm(x)
+            output = self.output_layer(x)
 
-        x = self.layer_norm(x)
-        output = self.output_layer(x)
+            return output, x, None, None
+        else :
+            x = self.pe(trg_embed)  # add position encoding to word embedding
+            x = self.emb_dropout(x)
 
-        return output, x, None, None
+            trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
+            trg_mask_pose = copy.deepcopy(trg_mask)
+            x_pose = copy.deepcopy(x)
+            for layer in self.layers:
+                x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
+                x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_mask, trg_mask=trg_mask)
+            x = self.layer_norm(x)
+            x_pose = self.layer_norm(x_pose)
+            print("CONCAT : ", torch.cat([x, x_pose], dim = 1).size())
+            output = self.output_layer(torch.cat([x, x_pose], dim = 1))
+
+            return output, x, None, None
 
     def __repr__(self):
         return "%s(num_layers=%r, num_heads=%r)" % (
