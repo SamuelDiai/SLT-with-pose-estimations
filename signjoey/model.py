@@ -169,7 +169,7 @@ class SignModel(nn.Module):
                 )
             else:
                 decoder_outputs = None
-                return decoder_outputs, gloss_probabilities, gloss_probabilities_pose
+            return decoder_outputs, gloss_probabilities, gloss_probabilities_pose
 
     def encode(
         self, sgn: Tensor, sgn_mask: Tensor, sgn_length: Tensor
