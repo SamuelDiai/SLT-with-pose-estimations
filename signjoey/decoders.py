@@ -565,6 +565,7 @@ class TransformerDecoder(Decoder):
             x = torch.cat([x, hand, body, face], dim = 2)
         print("X SHAPE : ", x.size())
         output = self.output_layer(x)
+        print("OUTPUT SHAPE :", output.size())
 
         return output, x, None, None
 
