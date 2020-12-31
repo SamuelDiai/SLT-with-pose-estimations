@@ -447,8 +447,10 @@ def build_model(
 
     if do_recognition:
         if cfg['fusion_type'] == 'mid_fusion':
-            encoder.output_size += 2*84 + 2*21 + 2*13
-        gloss_output_layer = nn.Linear(encoder.output_size, len(gls_vocab))
+            ndim = 2*84 + 2*21 + 2*13
+        else :
+            ndim = 0
+        gloss_output_layer = nn.Linear(encoder.output_size + ndim, len(gls_vocab))
         if cfg["encoder"].get("freeze", False):
             freeze_params(gloss_output_layer)
     else:
