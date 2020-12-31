@@ -341,7 +341,7 @@ class TrainManager:
         if self.use_cuda:
             self.model.cuda()
 
-    def train_and_validate(self, train_data: Dataset, valid_data: Dataset, fusion_type = cfg["fusion_type"]: str) -> None:
+    def train_and_validate(self, train_data: Dataset, valid_data: Dataset, fusion_type: str) -> None:
         """
         Train the model and validate it from time to time on the validation set.
 
