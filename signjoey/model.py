@@ -128,7 +128,7 @@ class SignModel(nn.Module):
             else:
                 decoder_outputs = None
 
-            return decoder_outputs, gloss_probabilities, _
+            return decoder_outputs, gloss_probabilities, None
         else :
             encoder_output, encoder_hidden = self.encode(
                 sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
