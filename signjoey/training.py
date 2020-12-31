@@ -988,7 +988,7 @@ def train(cfg_file: str) -> None:
         txt_vocab=txt_vocab,
         sgn_dim=sum(cfg["data"]["feature_size"]) + 2*84 + 2*21 + 2*13
         if isinstance(cfg["data"]["feature_size"], list)
-        else cfg["data"]["feature_size"],
+        else cfg["data"]["feature_size"] + 2*84 + 2*21 + 2*13,
         do_recognition=do_recognition,
         do_translation=do_translation,
     )
