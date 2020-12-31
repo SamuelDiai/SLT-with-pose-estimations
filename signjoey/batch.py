@@ -38,11 +38,10 @@ class Batch:
         # Sequence Information
         self.sequence = torch_batch.sequence
         self.signer = torch_batch.signer
-        print(" LEN : ", len(torch_batch.sgn))
-        # Concat with pose estimations :
-        torch_batch.sgn = tuple([torch.cat([torch_batch.sgn[elem], torch_batch.keypoints_hand[elem], torch_batch.keypoints_body[elem], torch_batch.keypoints_face[elem]], dim = 2) for elem in range(len(torch_batch.sgn))])
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
+        # Concat with pose estimations :
+        self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2) 
         # Here be dragons
         if frame_subsampling_ratio:
             tmp_sgn = torch.zeros_like(self.sgn)
