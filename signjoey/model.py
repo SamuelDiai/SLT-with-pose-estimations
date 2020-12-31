@@ -105,7 +105,7 @@ class SignModel(nn.Module):
         )
         if self.do_recognition:
             if fusion_type == 'mid_fusion':
-                encoder_output = torch.cat([encoder_output, hand, body, face])
+                encoder_output = torch.cat([encoder_output, hand, body, face], dim = 2)
             # Gloss Recognition Part
             # N x T x C
             gloss_scores = self.gloss_output_layer(encoder_output)
