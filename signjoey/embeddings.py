@@ -222,7 +222,8 @@ class SpatialEmbeddings(nn.Module):
         :param x: input frame features
         :return: embedded representation for `x`
         """
-
+        print(x.size)
+        print(self.ln)
         x = self.ln(x)
 
         if self.norm_type:
