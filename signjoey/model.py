@@ -229,7 +229,7 @@ class SignModel(nn.Module):
     def get_loss_for_batch(
         self,
         batch: Batch,
-        fusion_type : fusion_type,
+        fusion_type : str,
         recognition_loss_function: nn.Module,
         translation_loss_function: nn.Module,
         recognition_loss_weight: float,
