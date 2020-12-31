@@ -129,6 +129,7 @@ class Batch:
         """
         self.sgn = self.sgn.cuda()
         self.sgn_mask = self.sgn_mask.cuda()
+        self.pose_estim = self.pose_estim.cuda()
         self.keypoints_hand = self.keypoints_hand.cuda()
         self.keypoints_body = self.keypoints_body.cuda()
         self.keypoints_face = self.keypoints_face.cuda()
