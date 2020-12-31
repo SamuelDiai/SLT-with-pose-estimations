@@ -190,7 +190,7 @@ class SpatialEmbeddings(nn.Module):
         :param freeze: freeze the embeddings during training
         """
         super().__init__()
-
+        self.input_size = input_size
         self.embedding_dim = embedding_dim
         self.ln = nn.Linear(self.input_size, self.embedding_dim)
         self.ln_pose = nn.Linear(self.input_size + 2*84 + 2*21 + 2*13, self.embedding_dim)
