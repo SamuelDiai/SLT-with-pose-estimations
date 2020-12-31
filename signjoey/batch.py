@@ -41,6 +41,9 @@ class Batch:
         self.signer = torch_batch.signer
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
+        self.keypoints_hand = torch_batch.keypoints_hand[0]
+        self.keypoints_body = torch_batch.keypoints_body[0]
+        self.keypoints_face = torch_batch.keypoints_face[0]
         # Concat with pose estimations :
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
