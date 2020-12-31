@@ -101,8 +101,6 @@ def recurrent_greedy(
     hidden = None
     prev_att_vector = None
     finished = src_mask.new_zeros((batch_size, 1)).byte()
-    if fusion_type == 'late_fusion':
-        hand =
     # pylint: disable=unused-variable
     for t in range(max_output_length):
         # decode one single step
