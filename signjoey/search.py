@@ -21,6 +21,9 @@ def greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    hand : Tensor,
+    body : Tensor,
+    face : Tensor
 ) -> (np.array, np.array):
     """
     Greedy decoding. Select the token word highest probability at each time
@@ -54,6 +57,9 @@ def greedy(
         decoder=decoder,
         encoder_output=encoder_output,
         encoder_hidden=encoder_hidden,
+        hand=hand,
+        face=face,
+        body=body
     )
 
 
@@ -66,6 +72,9 @@ def recurrent_greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    hand : Tensor,
+    body : Tensor,
+    face : Tensor
 ) -> (np.array, np.array):
     """
     Greedy decoding: in each step, choose the word that gets highest score.
@@ -92,7 +101,8 @@ def recurrent_greedy(
     hidden = None
     prev_att_vector = None
     finished = src_mask.new_zeros((batch_size, 1)).byte()
-
+    if fusion_type == 'late_fusion':
+        hand =
     # pylint: disable=unused-variable
     for t in range(max_output_length):
         # decode one single step
@@ -104,6 +114,9 @@ def recurrent_greedy(
             hidden=hidden,
             prev_att_vector=prev_att_vector,
             unroll_steps=1,
+            hand=hand,
+            face=face,
+            body=body
         )
         # logits: batch x time=1 x vocab (logits)
 
@@ -135,6 +148,9 @@ def transformer_greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    hand : Tensor,
+    body : Tensor,
+    face : Tensor
 ) -> (np.array, None):
     """
     Special greedy function for transformer, since it works differently.
@@ -176,6 +192,9 @@ def transformer_greedy(
                 unroll_steps=None,
                 hidden=None,
                 trg_mask=trg_mask,
+                hand=hand,
+                face=face,
+                body=body
             )
 
             logits = logits[:, -1]
@@ -207,6 +226,9 @@ def beam_search(
     max_output_length: int,
     alpha: float,
     embed: Embeddings,
+    hand : Tensor,
+    body : Tensor,
+    face : Tensor,
     n_best: int = 1,
 ) -> (np.array, np.array):
     """
@@ -319,6 +341,9 @@ def beam_search(
             prev_att_vector=att_vectors,
             unroll_steps=1,
             trg_mask=trg_mask,  # subsequent mask for Transformer only
+            hand=hand,
+            body=body,
+            face=face
         )
 
         # For the Transformer we made predictions for all time steps up to

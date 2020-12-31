@@ -261,6 +261,7 @@ class SignModel(nn.Module):
     def run_batch(
         self,
         batch: Batch,
+        fusion_type : str,
         recognition_beam_size: int = 1,
         translation_beam_size: int = 1,
         translation_beam_alpha: float = -1,
@@ -279,7 +280,14 @@ class SignModel(nn.Module):
         :return: stacked_output: hypotheses for batch,
             stacked_attention_scores: attention scores for batch
         """
-
+        if fusion_type == 'late_fusion':
+            hand = batch.keypoints_hand
+            body = batch.keypoints_body
+            face = batch.keypoints_face
+        else :
+            hand = None,
+            body = None,
+            face = None
         encoder_output, encoder_hidden = self.encode(
             sgn=batch.sgn, sgn_mask=batch.sgn_mask, sgn_length=batch.sgn_lengths
         )
@@ -332,6 +340,9 @@ class SignModel(nn.Module):
                     eos_index=self.txt_eos_index,
                     decoder=self.decoder,
                     max_output_length=translation_max_output_length,
+                    hand = hand,
+                    body=body,
+                    face=face
                 )
                 # batch, time, max_sgn_length
             else:  # beam size
@@ -347,6 +358,9 @@ class SignModel(nn.Module):
                     pad_index=self.txt_pad_index,
                     bos_index=self.txt_bos_index,
                     decoder=self.decoder,
+                    hand = hand,
+                    body=body,
+                    face=face
                 )
         else:
             stacked_txt_output = stacked_attention_scores = None

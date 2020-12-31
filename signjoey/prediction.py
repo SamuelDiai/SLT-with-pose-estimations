@@ -165,6 +165,7 @@ def validate_on_data(
                 batch_attention_scores,
             ) = model.run_batch(
                 batch=batch,
+                fusion_type=fusion_type,
                 recognition_beam_size=recognition_beam_size if do_recognition else None,
                 translation_beam_size=translation_beam_size if do_translation else None,
                 translation_beam_alpha=translation_beam_alpha
