@@ -381,11 +381,11 @@ class TrainManager:
                     torch_batch=batch,
                     txt_pad_index=self.txt_pad_index,
                     sgn_dim=self.feature_size,
+                    fusion_type = fusion_type,
                     use_cuda=self.use_cuda,
                     frame_subsampling_ratio=self.frame_subsampling_ratio,
                     random_frame_subsampling=self.random_frame_subsampling,
-                    random_frame_masking_ratio=self.random_frame_masking_ratio,
-                    fusion_type = fusion_type
+                    random_frame_masking_ratio=self.random_frame_masking_ratio
                 )
 
                 # only update every batch_multiplier batches

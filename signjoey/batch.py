@@ -15,12 +15,12 @@ class Batch:
         torch_batch,
         txt_pad_index,
         sgn_dim,
+        fusion_type,
         is_train: bool = False,
         use_cuda: bool = False,
         frame_subsampling_ratio: int = None,
         random_frame_subsampling: bool = None,
-        random_frame_masking_ratio: float = None,
-        fusion_type : str = None
+        random_frame_masking_ratio: float = None
     ):
         """
         Create a new joey batch from a torch batch.
