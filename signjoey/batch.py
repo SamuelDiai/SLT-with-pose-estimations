@@ -42,6 +42,7 @@ class Batch:
         self.sgn, self.sgn_lengths = torch_batch.sgn
 
         ## Concatenate sgn, hand, body, keypoints_face
+        print(" torch_batch.sgn :", torch_batch.sgn[0].size())
         print(" torch_batch.keypoints_hand :",  torch_batch.keypoints_hand[0].size())
         print("self.sgn.size()  : ", self.sgn[0].size())
         print(self.sgn_lengths)
