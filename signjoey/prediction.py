@@ -137,6 +137,7 @@ def validate_on_data(
 
             batch_recognition_loss, batch_translation_loss = model.get_loss_for_batch(
                 batch=batch,
+                fusion_type=fusion_type,
                 recognition_loss_function=recognition_loss_function
                 if do_recognition
                 else None,
