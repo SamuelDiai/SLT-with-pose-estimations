@@ -331,13 +331,17 @@ def test(
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
+    if cfg["fusion_type"] == 'early_fusion':
+        add_dim = 2*84 + 2*21 + 2*13
+    else :
+        add_dim = 0
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
-        sgn_dim=sum(cfg["data"]["feature_size"])
+        sgn_dim=sum(cfg["data"]["feature_size"]) + add_dim
         if isinstance(cfg["data"]["feature_size"], list)
-        else cfg["data"]["feature_size"],
+        else cfg["data"]["feature_size"] + add_dim,
         do_recognition=do_recognition,
         do_translation=do_translation,
     )
