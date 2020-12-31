@@ -38,7 +38,7 @@ class Batch:
         # Sequence Information
         self.sequence = torch_batch.sequence
         self.signer = torch_batch.signer
-
+        print(" LEN : ", len(torch_batch.sgn))
         # Concat with pose estimations :
         torch_batch.sgn = tuple([torch.cat([torch_batch.sgn[elem], torch_batch.keypoints_hand[elem], torch_batch.keypoints_body[elem], torch_batch.keypoints_face[elem]], dim = 2) for elem in range(len(torch_batch.sgn))])
         # Sign
