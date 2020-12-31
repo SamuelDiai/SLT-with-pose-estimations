@@ -418,7 +418,7 @@ def build_model(
         if cfg["decoder"].get("type", "recurrent") == "transformer":
             decoder = TransformerDecoder(
                 **cfg["decoder"],
-                fusion_type=cfg["model"]["fusion_type"],
+                fusion_type=cfg["fusion_type"],
                 encoder=encoder,
                 vocab_size=len(txt_vocab),
                 emb_size=txt_embed.embedding_dim,
