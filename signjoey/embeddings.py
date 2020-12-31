@@ -192,9 +192,8 @@ class SpatialEmbeddings(nn.Module):
         super().__init__()
 
         self.embedding_dim = embedding_dim
-        self.input_size = input_size
         self.ln = nn.Linear(self.input_size, self.embedding_dim)
-
+        self.ln_pose = nn.Linear(self.input_size + 2*84 + 2*21 + 2*13, self.embedding_dim)
         self.norm_type = norm_type
         if self.norm_type:
             self.norm = MaskedNorm(
@@ -222,7 +221,11 @@ class SpatialEmbeddings(nn.Module):
         :param x: input frame features
         :return: embedded representation for `x`
         """
-        x = self.ln(x)
+        try :
+            x = self.ln(x)
+        except RuntimeError:
+            x = self.ln_pose(x)
+
 
         if self.norm_type:
             x = self.norm(x, mask)
