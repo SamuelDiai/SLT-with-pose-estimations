@@ -471,6 +471,7 @@ class TrainManager:
                         dataset_version=self.dataset_version,
                         sgn_dim=self.feature_size,
                         txt_pad_index=self.txt_pad_index,
+                        fusion_type=fusion_type,
                         # Recognition Parameters
                         do_recognition=self.do_recognition,
                         recognition_loss_function=self.recognition_loss_function
