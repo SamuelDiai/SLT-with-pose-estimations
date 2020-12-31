@@ -41,10 +41,15 @@ class Batch:
         self.signer = torch_batch.signer
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
+        self.keypoints_hand = torch_batch.keypoints_hand[0]
+        self.keypoints_body = torch_batch.keypoints_body[0]
+        self.keypoints_face = torch_batch.keypoints_face[0]
         # Concat with pose estimations :
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
             self.sgn_dim = sgn_dim + 2*84 + 2*21 + 2*13
+        else :
+            self.sgn_dim = sgn_dim
         # Here be dragons
         if frame_subsampling_ratio:
             tmp_sgn = torch.zeros_like(self.sgn)
@@ -122,6 +127,9 @@ class Batch:
         """
         self.sgn = self.sgn.cuda()
         self.sgn_mask = self.sgn_mask.cuda()
+        self.keypoints_hand = self.keypoints_hand.cuda()
+        self.keypoints_body = self.keypoints_body.cuda()
+        self.keypoints_face = self.keypoints_face.cuda()
 
         if self.txt_input is not None:
             self.txt = self.txt.cuda()
