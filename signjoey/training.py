@@ -373,11 +373,9 @@ class TrainManager:
             if self.do_translation:
                 processed_txt_tokens = self.total_txt_tokens
                 epoch_translation_loss = 0
-            print(train_iter)
             for batch in iter(train_iter):
                 # reactivate training
                 # create a Batch object from torchtext batch
-                print(batch)
                 batch = Batch(
                     is_train=True,
                     torch_batch=batch,
