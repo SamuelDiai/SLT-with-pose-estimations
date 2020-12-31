@@ -127,6 +127,9 @@ class Batch:
         """
         self.sgn = self.sgn.cuda()
         self.sgn_mask = self.sgn_mask.cuda()
+        self.keypoints_hand = self.keypoints_hand.cuda()
+        self.keypoints_body = self.keypoints_body.cuda()
+        self.keypoints_face = self.keypoints_face.cuda()
 
         if self.txt_input is not None:
             self.txt = self.txt.cuda()
