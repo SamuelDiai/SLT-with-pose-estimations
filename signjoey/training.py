@@ -984,7 +984,7 @@ def train(cfg_file: str) -> None:
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
-    if cfg["fusion_type"] == 'early_fusion':
+    if cfg["model"]["fusion_type"] == 'early_fusion':
         add_dim = 2*84 + 2*21 + 2*13
     else :
         add_dim = 0
