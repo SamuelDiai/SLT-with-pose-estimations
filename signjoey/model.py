@@ -81,7 +81,11 @@ class SignModel(nn.Module):
         sgn_mask: Tensor,
         sgn_lengths: Tensor,
         txt_input: Tensor,
+        hand : Tensor,
+        body : Tensor,
+        face : Tensor,
         txt_mask: Tensor = None,
+
     ) -> (Tensor, Tensor, Tensor, Tensor):
         """
         First encodes the source sentence.
@@ -118,6 +122,9 @@ class SignModel(nn.Module):
                 txt_input=txt_input,
                 unroll_steps=unroll_steps,
                 txt_mask=txt_mask,
+                hand = hand,
+                body = body,
+                face = face,
             )
         else:
             decoder_outputs = None
@@ -148,6 +155,9 @@ class SignModel(nn.Module):
         sgn_mask: Tensor,
         txt_input: Tensor,
         unroll_steps: int,
+        hand : Tensor,
+        body : Tensor,
+        face : Tensor,
         decoder_hidden: Tensor = None,
         txt_mask: Tensor = None,
     ) -> (Tensor, Tensor, Tensor, Tensor):
@@ -171,6 +181,9 @@ class SignModel(nn.Module):
             trg_mask=txt_mask,
             unroll_steps=unroll_steps,
             hidden=decoder_hidden,
+            hand = hand,
+            body = body,
+            face = hand
         )
 
     def get_loss_for_batch(
@@ -180,6 +193,7 @@ class SignModel(nn.Module):
         translation_loss_function: nn.Module,
         recognition_loss_weight: float,
         translation_loss_weight: float,
+        fusion_type: str,
     ) -> (Tensor, Tensor):
         """
         Compute non-normalized loss and number of tokens for a batch
@@ -195,12 +209,24 @@ class SignModel(nn.Module):
         # pylint: disable=unused-variable
 
         # Do a forward pass
+        if fusion_type == 'late_fusion':
+            hand = batch.keypoints_hand
+            body = batch.keypoints_body
+            face = batch.keypoints_face
+        else :
+            hand = None,
+            body = None,
+            face = None
+
         decoder_outputs, gloss_probabilities = self.forward(
             sgn=batch.sgn,
             sgn_mask=batch.sgn_mask,
             sgn_lengths=batch.sgn_lengths,
             txt_input=batch.txt_input,
             txt_mask=batch.txt_mask,
+            hand = hand,
+            body = body,
+            face = face
         )
 
         if self.do_recognition:
@@ -418,6 +444,7 @@ def build_model(
         if cfg["decoder"].get("type", "recurrent") == "transformer":
             decoder = TransformerDecoder(
                 **cfg["decoder"],
+                fusion_type=cfg["fusion_type"],
                 encoder=encoder,
                 vocab_size=len(txt_vocab),
                 emb_size=txt_embed.embedding_dim,
@@ -427,6 +454,7 @@ def build_model(
             decoder = RecurrentDecoder(
                 **cfg["decoder"],
                 encoder=encoder,
+                fusion_type=cfg["fusion_type"],
                 vocab_size=len(txt_vocab),
                 emb_size=txt_embed.embedding_dim,
                 emb_dropout=dec_emb_dropout,

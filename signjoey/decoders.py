@@ -466,6 +466,7 @@ class TransformerDecoder(Decoder):
 
     def __init__(
         self,
+        fusion_type : str,
         num_layers: int = 4,
         num_heads: int = 8,
         hidden_size: int = 512,
@@ -511,6 +512,8 @@ class TransformerDecoder(Decoder):
         self.layer_norm = nn.LayerNorm(hidden_size, eps=1e-6)
 
         self.emb_dropout = nn.Dropout(p=emb_dropout)
+        if fusion_type == 'late_fusion':
+            hidden_size += 2*84 + 2*21 + 2*13
         self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
 
         if freeze:
@@ -525,6 +528,9 @@ class TransformerDecoder(Decoder):
         unroll_steps: int = None,
         hidden: Tensor = None,
         trg_mask: Tensor = None,
+        hand : Tensor,
+        body : Tensor,
+        face : Tensor,
         **kwargs
     ):
         """
@@ -552,6 +558,9 @@ class TransformerDecoder(Decoder):
             x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
 
         x = self.layer_norm(x)
+        ### Concat for late fusion :
+        if hand is not None and body is not None and face is not None:
+            x = torch.cat([x, hand, body, face], dim = 2)
         output = self.output_layer(x)
 
         return output, x, None, None
