@@ -21,6 +21,10 @@ def greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    fusion_type:str,
+    src_pose:Tensor = None,
+    encoder_output_pose : Tensor = None,
+    encoder_hidden_pose : Tensor = None,
 ) -> (np.array, np.array):
     """
     Greedy decoding. Select the token word highest probability at each time
@@ -66,6 +70,10 @@ def recurrent_greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    fusion_type:str,
+    src_pose:Tensor = None,
+    encoder_output_pose : Tensor = None,
+    encoder_hidden_pose : Tensor = None,
 ) -> (np.array, np.array):
     """
     Greedy decoding: in each step, choose the word that gets highest score.
@@ -90,6 +98,7 @@ def recurrent_greedy(
     output = []
     attention_scores = []
     hidden = None
+    hidden_pose = None
     prev_att_vector = None
     finished = src_mask.new_zeros((batch_size, 1)).byte()
 
@@ -98,10 +107,15 @@ def recurrent_greedy(
         # decode one single step
         logits, hidden, att_probs, prev_att_vector = decoder(
             encoder_output=encoder_output,
+            fusion_type=fusion_type,
+            encoder_output_pose=encoder_output_pose,
+            encoder_hidden_pose = encoder_hidden_pose,
             encoder_hidden=encoder_hidden,
             src_mask=src_mask,
+            src_pose=src_pose,
             trg_embed=embed(prev_y),
             hidden=hidden,
+            hidden_pose=hidden_pose,
             prev_att_vector=prev_att_vector,
             unroll_steps=1,
         )
@@ -135,6 +149,10 @@ def transformer_greedy(
     decoder: Decoder,
     encoder_output: Tensor,
     encoder_hidden: Tensor,
+    encoder_output_pose : Tensor,
+    encoder_hidden_pose : Tensor,
+    src_pose : Tensor = None,
+    fusion_type:str,
 ) -> (np.array, None):
     """
     Special greedy function for transformer, since it works differently.
@@ -171,10 +189,14 @@ def transformer_greedy(
             logits, out, _, _ = decoder(
                 trg_embed=trg_embed,
                 encoder_output=encoder_output,
+                encoder_output_pose=encoder_output_pose,
+                encoder_hidden_pose=None,
                 encoder_hidden=None,
                 src_mask=src_mask,
+                src_pose=src_pose,
                 unroll_steps=None,
                 hidden=None,
+                hidden_pose=None,
                 trg_mask=trg_mask,
             )
 
@@ -208,6 +230,10 @@ def beam_search(
     alpha: float,
     embed: Embeddings,
     n_best: int = 1,
+    encoder_output_pose : Tensor = None,
+    encoder_hidden_pose : Tensor = None,
+    src_pose: Tensor = None,
+    fusion_type:str,
 ) -> (np.array, np.array):
     """
     Beam search with size k.
@@ -243,17 +269,27 @@ def beam_search(
     # pylint: disable=protected-access
     if not transformer:
         hidden = decoder._init_hidden(encoder_hidden)
+        hidden_pose = decoder._init_hidden(encoder_hidden_pose)
     else:
         hidden = None
+        hidden_pose = None
 
     # tile encoder states and decoder initial states beam_size times
     if hidden is not None:
         hidden = tile(hidden, size, dim=1)  # layers x batch*k x dec_hidden_size
+        hidden_pose = tile(hidden_pose, size, dim=1)
 
     encoder_output = tile(
         encoder_output.contiguous(), size, dim=0
     )  # batch*k x src_len x enc_hidden_size
     src_mask = tile(src_mask, size, dim=0)  # batch*k x 1 x src_len
+    if fusion_type == 'late_fusion':
+        encoder_output_pose = tile(
+            encoder_output_pose.contiguous(), size, dim=0
+        )
+        pose_mask = tile(pose_mask, size, dim=0)
+    else :
+        encoder_output_pose, pose_mask = None, None
 
     # Transformer only: create target mask
     if transformer:
@@ -313,9 +349,13 @@ def beam_search(
         logits, hidden, att_scores, att_vectors = decoder(
             encoder_output=encoder_output,
             encoder_hidden=encoder_hidden,
+            encoder_output_pose=encoder_output_pose,
+            encoder_hidden_pose=encoder_hidden_pose,
+            pose_mask=pose_mask,
             src_mask=src_mask,
             trg_embed=trg_embed,
             hidden=hidden,
+            hidden_pose=hidden_pose,
             prev_att_vector=att_vectors,
             unroll_steps=1,
             trg_mask=trg_mask,  # subsequent mask for Transformer only

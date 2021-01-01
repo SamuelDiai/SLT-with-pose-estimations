@@ -41,9 +41,11 @@ class Batch:
         self.signer = torch_batch.signer
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
+        _, self.pose_length = torch_batch.keypoints_hand
         self.keypoints_hand = torch_batch.keypoints_hand[0]
         self.keypoints_body = torch_batch.keypoints_body[0]
         self.keypoints_face = torch_batch.keypoints_face[0]
+        self.pose =  torch.cat([torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
         # Concat with pose estimations :
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
@@ -52,8 +54,10 @@ class Batch:
             self.sgn_dim = sgn_dim
         # Here be dragons
         if frame_subsampling_ratio:
+            tmp_pose =  torch.zeros_like(self.pose)
             tmp_sgn = torch.zeros_like(self.sgn)
             tmp_sgn_lengths = torch.zeros_like(self.sgn_lengths)
+            tmp_pose_lengths =  torch.zeros_like(self.pose_lengths)
             for idx, (features, length) in enumerate(zip(self.sgn, self.sgn_lengths)):
                 features = features.clone()
                 if random_frame_subsampling and is_train:
@@ -66,8 +70,20 @@ class Batch:
                 tmp_sgn[idx, 0 : tmp_data.shape[0]] = tmp_data
                 tmp_sgn_lengths[idx] = tmp_data.shape[0]
 
-            self.sgn = tmp_sgn[:, : tmp_sgn_lengths.max().long(), :]
-            self.sgn_lengths = tmp_sgn_lengths
+            for idx, (features, length) in enumerate(zip(self.pose, self.pose_lengths)):
+                features = features.clone()
+                if random_frame_subsampling and is_train:
+                    init_frame = random.randint(0, (frame_subsampling_ratio - 1))
+                else:
+                    init_frame = math.floor((frame_subsampling_ratio - 1) / 2)
+
+                tmp_data = features[: length.long(), :]
+                tmp_data = tmp_data[init_frame::frame_subsampling_ratio]
+                tmp_pose[idx, 0 : tmp_data.shape[0]] = tmp_data
+                tmp_pose_lengths[idx] = tmp_data.shape[0]
+
+            self.pose = tmp_pose[:, : tmp_pose_lengths.max().long(), :]
+            self.pose_lengths = tmp_pose_lengths
 
         if random_frame_masking_ratio and is_train:
             tmp_sgn = torch.zeros_like(self.sgn)
@@ -83,7 +99,22 @@ class Batch:
                 tmp_sgn[idx] = features
             self.sgn = tmp_sgn
 
+        if random_frame_masking_ratio and is_train:
+            tmp_pose = torch.zeros_like(self.pose)
+            num_mask_frames = (
+                (self.pose_lengths * random_frame_masking_ratio).floor().long()
+            )
+            for idx, features in enumerate(self.pose):
+                features = features.clone()
+                mask_frame_idx = np.random.permutation(
+                    int(self.pose_lengths[idx].long().numpy())
+                )[: num_mask_frames[idx]]
+                features[mask_frame_idx, :] = 1e-8
+                tmp_pose[idx] = features
+            self.pose = tmp_pose
+
         self.sgn_mask = (self.sgn != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
+        self.psoe_mask = (self.pose != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
 
         # Text
         self.txt = None
@@ -127,6 +158,8 @@ class Batch:
         """
         self.sgn = self.sgn.cuda()
         self.sgn_mask = self.sgn_mask.cuda()
+        self.pose = self.pose.cuda()
+        self.pose_mask = self.pose_mask.cuda()
         self.keypoints_hand = self.keypoints_hand.cuda()
         self.keypoints_body = self.keypoints_body.cuda()
         self.keypoints_face = self.keypoints_face.cuda()
@@ -150,6 +183,10 @@ class Batch:
         self.sgn = self.sgn[perm_index]
         self.sgn_mask = self.sgn_mask[perm_index]
         self.sgn_lengths = self.sgn_lengths[perm_index]
+
+        self.pose = self.pose[perm_index]
+        self.pose_mask = self.pose_mask[perm_index]
+        self.pose_lengths = self.pose_lengths[perm_index]
 
         self.signer = [self.signer[pi] for pi in perm_index]
         self.sequence = [self.sequence[pi] for pi in perm_index]

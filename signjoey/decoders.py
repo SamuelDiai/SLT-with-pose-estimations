@@ -466,6 +466,7 @@ class TransformerDecoder(Decoder):
 
     def __init__(
         self,
+        fusion_type : str,
         num_layers: int = 4,
         num_heads: int = 8,
         hidden_size: int = 512,
@@ -474,6 +475,7 @@ class TransformerDecoder(Decoder):
         emb_dropout: float = 0.1,
         vocab_size: int = 1,
         freeze: bool = False,
+
         **kwargs
     ):
         """
@@ -511,8 +513,22 @@ class TransformerDecoder(Decoder):
         self.layer_norm = nn.LayerNorm(hidden_size, eps=1e-6)
 
         self.emb_dropout = nn.Dropout(p=emb_dropout)
-        self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
-
+        if fusion_type == 'late_fusion':
+            self.layer_norm_pose = nn.LayerNorm(hidden_size, eps=1e-6)
+            self.output_layer = nn.Linear(hidden_size, 2*vocab_size, bias=False)
+            self.layers_pose = nn.ModuleList(
+                [
+                    TransformerDecoderLayer(
+                        size=hidden_size,
+                        ff_size=ff_size,
+                        num_heads=num_heads,
+                        dropout=dropout,
+                    )
+                    for _ in range(num_layers)
+                ]
+            )
+        else :
+            self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
         if freeze:
             freeze_params(self)
 
@@ -521,7 +537,11 @@ class TransformerDecoder(Decoder):
         trg_embed: Tensor = None,
         encoder_output: Tensor = None,
         encoder_hidden: Tensor = None,
+        encoder_output_pose: Tensor = None,
+        encoder_hidden_pose: Tensor = None,
+        hidden_pose: Tensor = None,
         src_mask: Tensor = None,
+        src_pose: Tensor = None,
         unroll_steps: int = None,
         hidden: Tensor = None,
         trg_mask: Tensor = None,
@@ -546,12 +566,24 @@ class TransformerDecoder(Decoder):
         x = self.pe(trg_embed)  # add position encoding to word embedding
         x = self.emb_dropout(x)
 
+
         trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
+
+        ## DO A PASS ON POSE ESTIMATION IF LATE FUSION
+        if self.fusion_type == 'late_fusion':
+            x_pose = x.detach().clone()
+            for layer in self.layers_pose:
+                x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_pose, trg_mask=trg_mask)
+            x_pose = self.layer_norm_pose(x_pose)
 
         for layer in self.layers:
             x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
-
         x = self.layer_norm(x)
+
+        ## MERGE IF LATE FUSION
+        if self.fusion_type == 'late_fusion':
+            x = torch.cat([x, x_pose])
+
         output = self.output_layer(x)
 
         return output, x, None, None

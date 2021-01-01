@@ -33,6 +33,7 @@ class SignModel(nn.Module):
 
     def __init__(
         self,
+        fusion_type : str,
         encoder: Encoder,
         gloss_output_layer: nn.Module,
         decoder: Decoder,
@@ -40,6 +41,9 @@ class SignModel(nn.Module):
         txt_embed: Embeddings,
         gls_vocab: GlossVocabulary,
         txt_vocab: TextVocabulary,
+        encoder_pose : Encoder = None,
+        gloss_output_layer_pose: nn.Module = None,
+        sgn_embed_pose: SpatialEmbeddings = None,
         do_recognition: bool = True,
         do_translation: bool = True,
     ):
@@ -74,6 +78,12 @@ class SignModel(nn.Module):
         self.do_recognition = do_recognition
         self.do_translation = do_translation
 
+        if fusion_type == 'late_fusion':
+            self.encoder_pose = encoder_pose
+            self.sgn_embed_pose = sgn_embed_pose
+            self.gloss_output_layer_pose = gloss_output_layer_pose
+
+
     # pylint: disable=arguments-differ
     def forward(
         self,
@@ -81,7 +91,12 @@ class SignModel(nn.Module):
         sgn_mask: Tensor,
         sgn_lengths: Tensor,
         txt_input: Tensor,
+        fusion_type : str,
         txt_mask: Tensor = None,
+        pose : Tensor = None,
+        pose_mask:Tensor = None,
+        pose_lengths:Tensor = None
+
     ) -> (Tensor, Tensor, Tensor, Tensor):
         """
         First encodes the source sentence.
@@ -97,11 +112,13 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
         )
-
+        encoder_output_pose, encoder_hidden_pose = self.encode_pose(
+            sgn=pose, sgn_mask=pose_mask, sgn_length=pose_lengths
+        )
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
-            gloss_scores = self.gloss_output_layer(encoder_output)
+            gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose]))
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
@@ -113,8 +130,11 @@ class SignModel(nn.Module):
             unroll_steps = txt_input.size(1)
             decoder_outputs = self.decode(
                 encoder_output=encoder_output,
+                encoder_output_pose=encoder_output_pose,
                 encoder_hidden=encoder_hidden,
+                encoder_hidden_pose=encoder_hidden_pose,
                 sgn_mask=sgn_mask,
+                pose_mask=pose_mask,
                 txt_input=txt_input,
                 unroll_steps=unroll_steps,
                 txt_mask=txt_mask,
@@ -141,6 +161,23 @@ class SignModel(nn.Module):
             mask=sgn_mask,
         )
 
+    def encode_pose(
+        self, pose: Tensor, pose_mask: Tensor, pose_length: Tensor
+    ) -> (Tensor, Tensor):
+        """
+        Encodes the source sentence.
+
+        :param sgn:
+        :param sgn_mask:
+        :param sgn_length:
+        :return: encoder outputs (output, hidden_concat)
+        """
+        return self.encoder_pose(
+            embed_src=self.sgn_embed(x=pose, mask=pose_mask),
+            src_length=pose_length,
+            mask=pose_mask,
+        )
+
     def decode(
         self,
         encoder_output: Tensor,
@@ -148,7 +185,11 @@ class SignModel(nn.Module):
         sgn_mask: Tensor,
         txt_input: Tensor,
         unroll_steps: int,
+        encoder_output_pose : Tensor = None,
+        encoder_hidden_pose : Tensor = None,
+        pose_mask : Tensor = None,
         decoder_hidden: Tensor = None,
+        decoder_hidden_pose : Tensor = None,
         txt_mask: Tensor = None,
     ) -> (Tensor, Tensor, Tensor, Tensor):
         """
@@ -166,11 +207,15 @@ class SignModel(nn.Module):
         return self.decoder(
             encoder_output=encoder_output,
             encoder_hidden=encoder_hidden,
+            encoder_output_pose=encoder_output_pose,
+            encoder_hidden_pose=encoder_hidden_pose,
+            src_pose=pose_mask,
             src_mask=sgn_mask,
             trg_embed=self.txt_embed(x=txt_input, mask=txt_mask),
             trg_mask=txt_mask,
             unroll_steps=unroll_steps,
             hidden=decoder_hidden,
+            hidden_pose=decoder_hidden_pose
         )
 
     def get_loss_for_batch(
@@ -196,11 +241,15 @@ class SignModel(nn.Module):
 
         # Do a forward pass
         decoder_outputs, gloss_probabilities = self.forward(
+            pose=batch.pose,
             sgn=batch.sgn,
             sgn_mask=batch.sgn_mask,
+            pose_mask=batch.pose_mask,
             sgn_lengths=batch.sgn_lengths,
+            pose_lengths=batch.pose_lengths,
             txt_input=batch.txt_input,
             txt_mask=batch.txt_mask,
+            fusion_type=fusion_type
         )
 
         if self.do_recognition:
@@ -257,11 +306,13 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=batch.sgn, sgn_mask=batch.sgn_mask, sgn_length=batch.sgn_lengths
         )
-
+        encoder_output_pose, encoder_hidden_pose = self.encode_pose(
+            pose=batch.pose, pose_mask=batch.pose_mask, sgn_length=batch.pose_lengths
+        )
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
-            gloss_scores = self.gloss_output_layer(encoder_output)
+            gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose]))
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
@@ -437,6 +488,22 @@ def build_model(
         txt_embed = None
         decoder = None
 
+    if cfg["fusion_type"] == 'late_fusion':
+        encoder_pose = TransformerEncoder(
+            **cfg["encoder"],
+            emb_size=sgn_embed.embedding_dim,
+            emb_dropout=enc_emb_dropout,
+        )
+        sgn_embed_pose = SpatialEmbeddings(
+            **cfg["encoder"]["embeddings"],
+            num_heads=cfg["encoder"]["num_heads"],
+            input_size=sgn_dim,
+        )
+        gloss_output_layer_pose = nn.Linear(encoder.output_size, len(gls_vocab))
+    else :
+        encoder_pose = None,
+        sgn_embed_pose = None,
+        gloss_output_layer_pose = None
     model: SignModel = SignModel(
         encoder=encoder,
         gloss_output_layer=gloss_output_layer,
@@ -447,6 +514,9 @@ def build_model(
         txt_vocab=txt_vocab,
         do_recognition=do_recognition,
         do_translation=do_translation,
+        encoder_pose=encoder_pose,
+        sgn_embed_pose=sgn_embed_pose,
+        gloss_output_layer_pose=gloss_output_layer_pose
     )
 
     if do_translation:
