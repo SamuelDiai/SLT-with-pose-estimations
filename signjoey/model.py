@@ -358,6 +358,8 @@ class SignModel(nn.Module):
                 stacked_txt_output, stacked_attention_scores = greedy(
                     encoder_hidden=encoder_hidden,
                     encoder_output=encoder_output,
+                    encoder_output_pose=encoder_output_pose,
+                    encoder_hidden_pose=encoder_hidden_pose,
                     fusion_type=self.fusion_type,
                     src_mask=batch.sgn_mask,
                     embed=self.txt_embed,
