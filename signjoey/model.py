@@ -119,9 +119,12 @@ class SignModel(nn.Module):
             # Gloss Recognition Part
             # N x T x C
             if self.fusion_type == 'late_fusion':
+                print("ENCODER MERGE : ", torch.cat([encoder_output, encoder_output_pose], dim=2))
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
+
+            print(gloss_scores)
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
