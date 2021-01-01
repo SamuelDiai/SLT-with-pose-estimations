@@ -71,6 +71,9 @@ class Batch:
                 tmp_sgn[idx, 0 : tmp_data.shape[0]] = tmp_data
                 tmp_sgn_lengths[idx] = tmp_data.shape[0]
 
+            self.sgn = tmp_sgn[:, : tmp_sgn_lengths.max().long(), :]
+            self.sgn_lengths = tmp_sgn_lengths
+
             for idx, (features, length) in enumerate(zip(self.pose, self.pose_lengths)):
                 features = features.clone()
                 if random_frame_subsampling and is_train:
