@@ -106,6 +106,7 @@ class SignModel(nn.Module):
         :param txt_mask: target mask
         :return: decoder outputs
         """
+        print("SGN : ", sgn, "POSE : ", pose)
         encoder_output, encoder_hidden = self.encode(
             sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
         )
