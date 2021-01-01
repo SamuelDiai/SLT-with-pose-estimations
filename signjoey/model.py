@@ -214,6 +214,7 @@ class SignModel(nn.Module):
             encoder_hidden=encoder_hidden,
             encoder_output_pose=encoder_output_pose,
             encoder_hidden_pose=encoder_hidden_pose,
+            fusion_type=self.fusion_type,
             src_pose=pose_mask,
             src_mask=sgn_mask,
             trg_embed=self.txt_embed(x=txt_input, mask=txt_mask),

@@ -534,6 +534,7 @@ class TransformerDecoder(Decoder):
 
     def forward(
         self,
+        fusion_type : str,
         trg_embed: Tensor = None,
         encoder_output: Tensor = None,
         encoder_hidden: Tensor = None,
@@ -570,7 +571,7 @@ class TransformerDecoder(Decoder):
         trg_mask = trg_mask & subsequent_mask(trg_embed.size(1)).type_as(trg_mask)
 
         ## DO A PASS ON POSE ESTIMATION IF LATE FUSION
-        if self.fusion_type == 'late_fusion':
+        if fusion_type == 'late_fusion':
             x_pose = x.detach().clone()
             for layer in self.layers_pose:
                 x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_pose, trg_mask=trg_mask)
