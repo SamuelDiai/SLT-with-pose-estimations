@@ -6,7 +6,7 @@ tf.config.set_visible_devices([], "GPU")
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-
+import torch
 from itertools import groupby
 from signjoey.initialization import initialize_model
 from signjoey.embeddings import Embeddings, SpatialEmbeddings
@@ -121,6 +121,7 @@ class SignModel(nn.Module):
             # Gloss Recognition Part
             # N x T x C
             if self.fusion_type == 'late_fusion':
+                print("encoder_output : ", encoder_output.size(), "encoder_output_pose :", encoder_output_pose.size())
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose]))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
