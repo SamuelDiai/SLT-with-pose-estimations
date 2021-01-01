@@ -58,6 +58,9 @@ def greedy(
         decoder=decoder,
         encoder_output=encoder_output,
         encoder_hidden=encoder_hidden,
+        fusion_type=fusion_type,
+        encoder_output_pose=encoder_output_pose,
+        encoder_hidden_pose=encoder_hidden_pose
     )
 
 
