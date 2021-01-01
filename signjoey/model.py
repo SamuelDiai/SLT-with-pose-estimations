@@ -115,6 +115,8 @@ class SignModel(nn.Module):
                 )
         else :
             encoder_output_pose, encoder_hidden_pose = None, None
+
+        print("ENCODER OUTPUT : ", encoder_output, "ENCODER OUTPUT POSE :", encoder_output_pose)
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
