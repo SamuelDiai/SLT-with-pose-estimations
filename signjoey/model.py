@@ -122,7 +122,7 @@ class SignModel(nn.Module):
             # N x T x C
             if self.fusion_type == 'late_fusion':
                 print("encoder_output : ", encoder_output.size(), "encoder_output_pose :", encoder_output_pose.size())
-                gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose]))
+                gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
             # N x T x C
@@ -317,7 +317,7 @@ class SignModel(nn.Module):
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
-            gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose]))
+            gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
@@ -505,7 +505,7 @@ def build_model(
             num_heads=cfg["encoder"]["num_heads"],
             input_size=pose_dim,
         )
-        gloss_output_layer_pose = nn.Linear(encoder.output_size, len(gls_vocab))
+        gloss_output_layer_pose = nn.Linear(2*encoder.output_size, len(gls_vocab))
     else :
         encoder_pose = None,
         sgn_embed_pose = None,

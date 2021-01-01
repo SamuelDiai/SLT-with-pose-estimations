@@ -581,7 +581,7 @@ class TransformerDecoder(Decoder):
         x = self.layer_norm(x)
 
         ## MERGE IF LATE FUSION
-        if self.fusion_type == 'late_fusion':
+        if fusion_type == 'late_fusion':
             x = torch.cat([x, x_pose])
 
         output = self.output_layer(x)
