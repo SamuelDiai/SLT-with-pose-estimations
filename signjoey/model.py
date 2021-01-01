@@ -505,6 +505,7 @@ def build_model(
         sgn_embed_pose = None,
         gloss_output_layer_pose = None
     model: SignModel = SignModel(
+        fusion_type=cfg["fusion_type"],
         encoder=encoder,
         gloss_output_layer=gloss_output_layer,
         decoder=decoder,
