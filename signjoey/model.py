@@ -119,11 +119,7 @@ class SignModel(nn.Module):
             # Gloss Recognition Part
             # N x T x C
             if self.fusion_type == 'late_fusion':
-                print("encoder_output : ", encoder_output.size(), "encoder_output_pose :", encoder_output_pose.size())
-                print("self.gloss_output_layer", self.gloss_output_layer)
-                print("SHAPE CONCAT  : ", torch.cat([encoder_output, encoder_output_pose], dim = 2).size())
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
-                print("SHAPE OUTPUT : ", gloss_scores.size())
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
             # N x T x C
@@ -313,14 +309,17 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=batch.sgn, sgn_mask=batch.sgn_mask, sgn_length=batch.sgn_lengths
         )
-        encoder_output_pose, encoder_hidden_pose = self.encode_pose(
-            pose=batch.pose, pose_mask=batch.pose_mask, sgn_length=batch.pose_lengths
-        )
+        if self.fusion_type == 'late_fusion':
+            encoder_output_pose, encoder_hidden_pose = self.encode_pose(
+                pose=batch.pose, pose_mask=batch.pose_mask, pose_length=batch.pose_lengths
+            )
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
-            print(self.gloss_output_layer)
-            gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
+            if self.fusion_type == 'late_fusion':
+                gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
+            else :
+                gloss_scores = self.gloss_output_layer(encoder_output)
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
