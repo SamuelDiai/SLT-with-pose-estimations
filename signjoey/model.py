@@ -313,6 +313,8 @@ class SignModel(nn.Module):
             encoder_output_pose, encoder_hidden_pose = self.encode_pose(
                 pose=batch.pose, pose_mask=batch.pose_mask, pose_length=batch.pose_lengths
             )
+        else :
+            encoder_output_pose, encoder_hidden_pose = None, None
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
