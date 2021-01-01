@@ -230,11 +230,11 @@ def beam_search(
     max_output_length: int,
     alpha: float,
     embed: Embeddings,
+    fusion_type:str,
     n_best: int = 1,
     encoder_output_pose : Tensor = None,
     encoder_hidden_pose : Tensor = None,
-    src_pose: Tensor = None,
-    fusion_type:str,
+    src_pose: Tensor = None
 ) -> (np.array, np.array):
     """
     Beam search with size k.
