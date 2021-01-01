@@ -515,7 +515,7 @@ class TransformerDecoder(Decoder):
         self.emb_dropout = nn.Dropout(p=emb_dropout)
         if fusion_type == 'late_fusion':
             self.layer_norm_pose = nn.LayerNorm(hidden_size, eps=1e-6)
-            self.output_layer = nn.Linear(hidden_size, 2*vocab_size, bias=False)
+            self.output_layer = nn.Linear(2*hidden_size, vocab_size, bias=False)
             self.layers_pose = nn.ModuleList(
                 [
                     TransformerDecoderLayer(
