@@ -41,7 +41,7 @@ class Batch:
         self.signer = torch_batch.signer
         # Sign
         self.sgn, self.sgn_lengths = torch_batch.sgn
-        _, self.pose_length = torch_batch.keypoints_hand
+        _, self.pose_lengths = torch_batch.keypoints_hand
         self.keypoints_hand = torch_batch.keypoints_hand[0]
         self.keypoints_body = torch_batch.keypoints_body[0]
         self.keypoints_face = torch_batch.keypoints_face[0]
