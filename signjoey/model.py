@@ -457,11 +457,11 @@ def build_model(
 
     if do_recognition:
         if cfg["fusion_type"] == 'late_fusion':
-            gloss_output_layer = nn.Linear(encoder.output_size, len(gls_vocab))
+            gloss_output_layer = nn.Linear(2*encoder.output_size, len(gls_vocab))
             if cfg["encoder"].get("freeze", False):
                 freeze_params(gloss_output_layer)
         else :
-            gloss_output_layer = nn.Linear(2*encoder.output_size, len(gls_vocab))
+            gloss_output_layer = nn.Linear(encoder.output_size, len(gls_vocab))
             if cfg["encoder"].get("freeze", False):
                 freeze_params(gloss_output_layer)
     else:
