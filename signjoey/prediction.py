@@ -339,6 +339,7 @@ def test(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
+        pose_dim=add_dim,
         sgn_dim=sum(cfg["data"]["feature_size"]) + add_dim
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"] + add_dim,
