@@ -43,7 +43,7 @@ class SignModel(nn.Module):
         txt_vocab: TextVocabulary,
         encoder_pose : Encoder = None,
         gloss_output_layer_pose: nn.Module = None,
-        sgn_embed_pose: SpatialEmbeddings = None,
+        pose_embed: SpatialEmbeddings = None,
         do_recognition: bool = True,
         do_translation: bool = True,
     ):
@@ -80,7 +80,7 @@ class SignModel(nn.Module):
         self.fusion_type = fusion_type
         if fusion_type == 'late_fusion':
             self.encoder_pose = encoder_pose
-            self.sgn_embed_pose = sgn_embed_pose
+            self.pose_embed = pose_embed
             self.gloss_output_layer_pose = gloss_output_layer_pose
 
 
@@ -178,7 +178,7 @@ class SignModel(nn.Module):
         :return: encoder outputs (output, hidden_concat)
         """
         return self.encoder_pose(
-            embed_src=self.sgn_embed(x=pose, mask=pose_mask),
+            embed_src=self.pose_embed(x=pose, mask=pose_mask),
             src_length=pose_length,
             mask=pose_mask,
         )
@@ -407,6 +407,7 @@ class SignModel(nn.Module):
 def build_model(
     cfg: dict,
     sgn_dim: int,
+    pose_dim : int,
     gls_vocab: GlossVocabulary,
     txt_vocab: TextVocabulary,
     do_recognition: bool = True,
@@ -498,10 +499,10 @@ def build_model(
             emb_size=sgn_embed.embedding_dim,
             emb_dropout=enc_emb_dropout,
         )
-        sgn_embed_pose = SpatialEmbeddings(
+        pose_embed = SpatialEmbeddings(
             **cfg["encoder"]["embeddings"],
             num_heads=cfg["encoder"]["num_heads"],
-            input_size=sgn_dim,
+            input_size=pose_dim,
         )
         gloss_output_layer_pose = nn.Linear(encoder.output_size, len(gls_vocab))
     else :
@@ -520,7 +521,7 @@ def build_model(
         do_recognition=do_recognition,
         do_translation=do_translation,
         encoder_pose=encoder_pose,
-        sgn_embed_pose=sgn_embed_pose,
+        pose_embed=pose_embed,
         gloss_output_layer_pose=gloss_output_layer_pose
     )
 

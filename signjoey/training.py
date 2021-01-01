@@ -992,6 +992,7 @@ def train(cfg_file: str) -> None:
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
+        pose_dim= 2*84 + 2*21 + 2*13,
         sgn_dim=sum(cfg["data"]["feature_size"]) + add_dim
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"] + add_dim,
