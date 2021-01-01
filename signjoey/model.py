@@ -121,7 +121,9 @@ class SignModel(nn.Module):
             if self.fusion_type == 'late_fusion':
                 print("encoder_output : ", encoder_output.size(), "encoder_output_pose :", encoder_output_pose.size())
                 print("self.gloss_output_layer", self.gloss_output_layer)
+                print("SHAPE CONCAT  : ", torch.cat([encoder_output, encoder_output_pose], dim = 2).size())
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
+                print("SHAPE OUTPUT : ", gloss_scores)
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
             # N x T x C
