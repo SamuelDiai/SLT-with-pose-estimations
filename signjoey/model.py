@@ -113,7 +113,7 @@ class SignModel(nn.Module):
         )
         if self.fusion_type=='late_fusion':
             encoder_output_pose, encoder_hidden_pose = self.encode_pose(
-                sgn=pose, sgn_mask=pose_mask, sgn_length=pose_lengths
+                pose=pose, pose_mask=pose_mask, pose_length=pose_lengths
                 )
         else :
             encoder_output_pose, encoder_hidden_pose = None, None
