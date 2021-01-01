@@ -518,7 +518,7 @@ def build_model(
         )
     else :
         encoder_pose = None,
-        sgn_embed_pose = None,
+        pose_embed = None,
     model: SignModel = SignModel(
         fusion_type=cfg["fusion_type"],
         encoder=encoder,
