@@ -151,8 +151,9 @@ def transformer_greedy(
     encoder_hidden: Tensor,
     encoder_output_pose : Tensor,
     encoder_hidden_pose : Tensor,
-    src_pose : Tensor = None,
     fusion_type:str,
+    src_pose : Tensor = None,
+
 ) -> (np.array, None):
     """
     Special greedy function for transformer, since it works differently.
