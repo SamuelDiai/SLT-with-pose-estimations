@@ -46,10 +46,11 @@ class Batch:
         self.keypoints_body = torch_batch.keypoints_body[0]
         self.keypoints_face = torch_batch.keypoints_face[0]
         self.pose =  torch.cat([torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
+        self.pose_dim = 2*84 + 2*21 + 2*13
         # Concat with pose estimations :
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
-            self.sgn_dim = sgn_dim + 2*84 + 2*21 + 2*13
+            self.sgn_dim = sgn_dim + self.pose_dim
         else :
             self.sgn_dim = sgn_dim
         # Here be dragons
@@ -114,7 +115,7 @@ class Batch:
             self.pose = tmp_pose
 
         self.sgn_mask = (self.sgn != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
-        self.psoe_mask = (self.pose != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
+        self.pose_mask = (self.pose != torch.zeros(self.pose_dim))[..., 0].unsqueeze(1)
 
         # Text
         self.txt = None
