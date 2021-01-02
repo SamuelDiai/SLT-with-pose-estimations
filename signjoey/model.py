@@ -164,8 +164,10 @@ class SignModel(nn.Module):
         :param sgn_length:
         :return: encoder outputs (output, hidden_concat)
         """
+        t = self.sgn_embed(x=sgn, mask=sgn_mask)
+        print("EMBED_SRC : ", t)
         return self.encoder(
-            embed_src=self.sgn_embed(x=sgn, mask=sgn_mask),
+            embed_src=t,
             src_length=sgn_length,
             mask=sgn_mask,
         )
@@ -181,8 +183,10 @@ class SignModel(nn.Module):
         :param sgn_length:
         :return: encoder outputs (output, hidden_concat)
         """
+        t = self.pose_embed(x=pose, mask=pose_mask)
+        print("EMBED_SRC_POSE : ", t)
         return self.encoder_pose(
-            embed_src=self.pose_embed(x=pose, mask=pose_mask),
+            embed_src=t,
             src_length=pose_length,
             mask=pose_mask,
         )

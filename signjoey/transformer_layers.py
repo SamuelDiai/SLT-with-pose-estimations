@@ -164,7 +164,6 @@ class PositionalEncoding(nn.Module):
                 ``(seq_len, batch_size, self.dim)``
         """
         # Add position encodings
-        print("PE IN MEM : ", self.pe)
         return emb + self.pe[:, : emb.size(1)]
 
 
