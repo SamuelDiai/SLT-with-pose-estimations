@@ -118,10 +118,7 @@ class PositionwiseFeedForward(nn.Module):
 
     def forward(self, x):
         x_norm = self.layer_norm(x)
-        print("AFTER LAYER NORM :", x_norm)
-        pwff = self.pwff_layer(x_norm)
-        print("AFTER PWFF : ", pwff)
-        return pwff + x
+        return self.pwff_layer(x_norm) + x
 
 
 # pylint: disable=arguments-differ
