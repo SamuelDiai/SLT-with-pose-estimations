@@ -42,7 +42,6 @@ class SignModel(nn.Module):
         gls_vocab: GlossVocabulary,
         txt_vocab: TextVocabulary,
         encoder_pose : Encoder = None,
-        pose_embed: SpatialEmbeddings = None,
         do_recognition: bool = True,
         do_translation: bool = True,
     ):
@@ -79,7 +78,6 @@ class SignModel(nn.Module):
         self.fusion_type = fusion_type
         if fusion_type == 'late_fusion':
             self.encoder_pose = encoder_pose
-            self.pose_embed = pose_embed
 
 
     # pylint: disable=arguments-differ
@@ -182,7 +180,7 @@ class SignModel(nn.Module):
         :return: encoder outputs (output, hidden_concat)
         """
         return self.encoder_pose(
-            embed_src=self.pose_embed(x=pose, mask=pose_mask),
+            embed_src=self.sgn_embed(x=pose, mask=pose_mask),
             src_length=pose_length,
             mask=pose_mask,
         )
@@ -519,14 +517,8 @@ def build_model(
             emb_size=sgn_embed.embedding_dim,
             emb_dropout=enc_emb_dropout,
         )
-        pose_embed = SpatialEmbeddings(
-            **cfg["encoder"]["embeddings"],
-            num_heads=cfg["encoder"]["num_heads"],
-            input_size=pose_dim,
-        )
     else :
-        encoder_pose = None,
-        pose_embed = None,
+        encoder_pose = None
     model: SignModel = SignModel(
         fusion_type=cfg["fusion_type"],
         encoder=encoder,
@@ -538,8 +530,7 @@ def build_model(
         txt_vocab=txt_vocab,
         do_recognition=do_recognition,
         do_translation=do_translation,
-        encoder_pose=encoder_pose,
-        pose_embed=pose_embed
+        encoder_pose=encoder_pose
     )
 
     if do_translation:
