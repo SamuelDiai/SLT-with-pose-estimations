@@ -117,12 +117,10 @@ class SignModel(nn.Module):
         else :
             encoder_output_pose, encoder_hidden_pose = None, None
 
-        print("ENCODER OUTPUT : ", encoder_output, "ENCODER OUTPUT POSE :", encoder_output_pose)
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
             if self.fusion_type == 'late_fusion':
-                print("ENCODER MERGE : ", torch.cat([encoder_output, encoder_output_pose], dim=2))
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
@@ -264,6 +262,7 @@ class SignModel(nn.Module):
             txt_input=batch.txt_input,
             txt_mask=batch.txt_mask
         )
+        print(" DECODER_OUPUT : ", decoder_outputs, "GLOSS_proba : ", gloss_probabilities, "BATCH GLOSS : ", batch.gls)
 
         if self.do_recognition:
             assert gloss_probabilities is not None
