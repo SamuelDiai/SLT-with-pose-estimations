@@ -514,16 +514,18 @@ def build_model(
         decoder = None
 
     if cfg["fusion_type"] == 'late_fusion':
-        encoder_pose = TransformerEncoder(
-            **cfg["encoder"],
-            emb_size=sgn_embed.embedding_dim,
-            emb_dropout=enc_emb_dropout,
-        )
+
         pose_embed = SpatialEmbeddings(
             **cfg["encoder"]["embeddings"],
             num_heads=cfg["encoder"]["num_heads"],
             input_size=pose_dim,
         )
+        encoder_pose = TransformerEncoder(
+            **cfg["encoder"],
+            emb_size=pose_embed.embedding_dim,
+            emb_dropout=enc_emb_dropout,
+        )
+
     else :
         encoder_pose = None,
         pose_embed = None,
