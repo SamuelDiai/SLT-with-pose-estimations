@@ -222,7 +222,7 @@ class SpatialEmbeddings(nn.Module):
         :param x: input frame features
         :return: embedded representation for `x`
         """
-
+        print("BEFORE LIN : ", x)
         x = self.ln(x)
         print("AFTER LIN : ", x)
         if self.norm_type:
