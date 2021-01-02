@@ -105,7 +105,9 @@ class PositionwiseFeedForward(nn.Module):
         :param dropout:
         """
         super(PositionwiseFeedForward, self).__init__()
+
         self.layer_norm = nn.LayerNorm(input_size, eps=1e-6)
+
         self.pwff_layer = nn.Sequential(
             nn.Linear(input_size, ff_size),
             nn.ReLU(),
@@ -116,7 +118,10 @@ class PositionwiseFeedForward(nn.Module):
 
     def forward(self, x):
         x_norm = self.layer_norm(x)
-        return self.pwff_layer(x_norm) + x
+        print("AFTER LAYER NORM :", x_norm)
+        pwff = self.pwff_layer(x_norm)
+        print("AFTER PWFF : ", pwff)
+        return pwff + x
 
 
 # pylint: disable=arguments-differ
