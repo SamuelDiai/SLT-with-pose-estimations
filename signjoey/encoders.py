@@ -236,11 +236,9 @@ class TransformerEncoder(Encoder):
         x = self.pe(embed_src)  # add position encoding to word embeddings
         print("AFTER PE : ", x)
         x = self.emb_dropout(x)
-        print("AFTER EMB Dropout : ", x)
         count = 0
         for layer in self.layers:
             x = layer(x, mask)
-            print("AFTER LAYER %s "% count, x)
             count += 1
         return self.layer_norm(x), None
 
