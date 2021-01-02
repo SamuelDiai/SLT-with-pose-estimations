@@ -223,18 +223,16 @@ class SpatialEmbeddings(nn.Module):
         :return: embedded representation for `x`
         """
         print("BEFORE LIN : ", x)
+        print("self.ln weights : ", self.ln.weight)
         x = self.ln(x)
         print("AFTER LIN : ", x)
         if self.norm_type:
             x = self.norm(x, mask)
-            print("AFTER NORM : ", x)
         if self.activation_type:
             x = self.activation(x)
-            print("AFTER ACTIVATION : ", x)
 
         if self.scale:
             return x * self.scale_factor
-            print("AFTER SCALE")
         else:
             return x
 
