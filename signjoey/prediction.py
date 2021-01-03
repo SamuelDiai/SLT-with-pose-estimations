@@ -335,14 +335,19 @@ def test(
         add_dim = 2*84 + 2*21 + 2*13
     else :
         add_dim = 0
+
+    if cfg["model"]["fusion_type"] == 'only_pose':
+        sgn_dim = add_dim
+    else :
+        sgn_dim = sum(cfg["data"]["feature_size"]) + add_dim
+        if isinstance(cfg["data"]["feature_size"], list)
+        else cfg["data"]["feature_size"] + add_dim
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
         pose_dim=add_dim,
-        sgn_dim=sum(cfg["data"]["feature_size"]) + add_dim
-        if isinstance(cfg["data"]["feature_size"], list)
-        else cfg["data"]["feature_size"] + add_dim,
+        sgn_dim=sgn_dim,
         do_recognition=do_recognition,
         do_translation=do_translation,
     )
