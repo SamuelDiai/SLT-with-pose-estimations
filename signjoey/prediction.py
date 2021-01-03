@@ -339,9 +339,10 @@ def test(
     if cfg["model"]["fusion_type"] == 'only_pose':
         sgn_dim = add_dim
     else :
-        sgn_dim = sum(cfg["data"]["feature_size"]) + add_dim
-        if isinstance(cfg["data"]["feature_size"], list)
-        else cfg["data"]["feature_size"] + add_dim
+        if isinstance(cfg["data"]["feature_size"], list) :
+            sgn_dim = sum(cfg["data"]["feature_size"]) + add_dim
+        else :
+            sgn_dim = cfg["data"]["feature_size"] + add_dim
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
