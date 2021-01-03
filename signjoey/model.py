@@ -269,11 +269,10 @@ class SignModel(nn.Module):
                     batch.gls_lengths.long(),
                 )
                 * recognition_loss_weight
-            print("RECO LOSS : ", recognition_loss)
             )
         else:
             recognition_loss = None
-
+        print("RECO LOSS : ", recognition_loss)
         if self.do_translation:
             assert decoder_outputs is not None
             word_outputs, _, _, _ = decoder_outputs
@@ -285,7 +284,7 @@ class SignModel(nn.Module):
             )
         else:
             translation_loss = None
-
+        print("TRANS LOSS : ", translation_loss)
         return recognition_loss, translation_loss
 
     def run_batch(
