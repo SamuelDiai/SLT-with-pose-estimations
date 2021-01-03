@@ -518,7 +518,7 @@ def build_model(
         txt_embed = None
         decoder = None
 
-    if cfg["fusion_type"] == 'late_fusion':
+    if cfg["fusion_type"] == 'late_fusion' or cfg['fusion_type'] == 'mid_fusion':
 
         pose_embed = SpatialEmbeddings(
             **cfg["encoder"]["embeddings"],
