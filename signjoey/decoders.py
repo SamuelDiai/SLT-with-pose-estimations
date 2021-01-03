@@ -528,6 +528,7 @@ class TransformerDecoder(Decoder):
                 ]
             )
         elif fusion_type == 'mid_fusion':
+            self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
             self.merge_layer = nn.Linear(2*hidden_size, hidden_size, bias = False)
         else :
             self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
