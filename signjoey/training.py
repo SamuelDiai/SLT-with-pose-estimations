@@ -990,12 +990,14 @@ def train(cfg_file: str) -> None:
     else :
         add_dim = 0
 
-    if cfg["model"]["fusion_type"] == 'only_pose':
+    if cfg["model"]["fusion_type"] != 'only_pose':
         if isinstance(cfg["data"]["feature_size"], list):
             sgn_dim = sum(cfg["data"]["feature_size"]) + add_dim
         else :
             sgn_dim =  cfg["data"]["feature_size"] + add_dim
-
+    else :
+        sgn_dim = add_dim
+    print("SGN DIM : ", sgn_dim)
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
