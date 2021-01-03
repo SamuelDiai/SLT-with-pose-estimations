@@ -288,7 +288,7 @@ def beam_search(
         encoder_output.contiguous(), size, dim=0
     )  # batch*k x src_len x enc_hidden_size
     src_mask = tile(src_mask, size, dim=0)  # batch*k x 1 x src_len
-    if fusion_type == 'late_fusion':
+    if fusion_type == 'late_fusion' or fusion_type == 'mid_fusion':
         encoder_output_pose = tile(
             encoder_output_pose.contiguous(), size, dim=0
         )

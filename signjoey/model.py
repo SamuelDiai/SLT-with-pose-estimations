@@ -318,7 +318,7 @@ class SignModel(nn.Module):
         encoder_output, encoder_hidden = self.encode(
             sgn=batch.sgn, sgn_mask=batch.sgn_mask, sgn_length=batch.sgn_lengths
         )
-        if self.fusion_type == 'late_fusion':
+        if self.fusion_type == 'late_fusion' or self.fusion_type == 'mid_fusion':
             encoder_output_pose, encoder_hidden_pose = self.encode_pose(
                 pose=batch.pose, pose_mask=batch.pose_mask, pose_length=batch.pose_lengths
             )
@@ -327,7 +327,7 @@ class SignModel(nn.Module):
         if self.do_recognition:
             # Gloss Recognition Part
             # N x T x C
-            if self.fusion_type == 'late_fusion':
+            if self.fusion_type == 'late_fusion' or self.fusion_type == 'mid_fusion':
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
