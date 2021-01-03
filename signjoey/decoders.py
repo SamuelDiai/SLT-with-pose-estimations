@@ -527,6 +527,8 @@ class TransformerDecoder(Decoder):
                     for _ in range(num_layers)
                 ]
             )
+        elif fusion_type == 'mid_fusion':
+            self.merge_layer = nn.Linear(2*hidden_size, hidden_size, bias = False)
         else :
             self.output_layer = nn.Linear(hidden_size, vocab_size, bias=False)
         if freeze:
@@ -576,6 +578,8 @@ class TransformerDecoder(Decoder):
             for layer in self.layers_pose:
                 x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_pose, trg_mask=trg_mask)
             x_pose = self.layer_norm_pose(x_pose)
+        elif fusion_type == 'mid_fusion':
+            encoder_output = self.merge_layer(torch.cat[encoder_output, encoder_output_pose], dim = 2)
 
         for layer in self.layers:
             x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
