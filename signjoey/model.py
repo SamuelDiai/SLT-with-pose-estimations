@@ -77,7 +77,7 @@ class SignModel(nn.Module):
         self.do_recognition = do_recognition
         self.do_translation = do_translation
         self.fusion_type = fusion_type
-        if fusion_type == 'late_fusion':
+        if fusion_type == 'late_fusion' or fusion_type == 'mid_fusion':
             self.encoder_pose = encoder_pose
             self.pose_embed = pose_embed
 
