@@ -58,10 +58,8 @@ class Batch:
             self.sgn_dim = sgn_dim
         # Here be dragons
         if frame_subsampling_ratio:
-            tmp_pose =  torch.zeros_like(self.pose)
             tmp_sgn = torch.zeros_like(self.sgn)
             tmp_sgn_lengths = torch.zeros_like(self.sgn_lengths)
-            tmp_pose_lengths =  torch.zeros_like(self.pose_lengths)
             for idx, (features, length) in enumerate(zip(self.sgn, self.sgn_lengths)):
                 features = features.clone()
                 if random_frame_subsampling and is_train:
@@ -73,10 +71,11 @@ class Batch:
                 tmp_data = tmp_data[init_frame::frame_subsampling_ratio]
                 tmp_sgn[idx, 0 : tmp_data.shape[0]] = tmp_data
                 tmp_sgn_lengths[idx] = tmp_data.shape[0]
-
             self.sgn = tmp_sgn[:, : tmp_sgn_lengths.max().long(), :]
             self.sgn_lengths = tmp_sgn_lengths
 
+            tmp_pose =  torch.zeros_like(self.pose)
+            tmp_pose_lengths =  torch.zeros_like(self.pose_lengths)
             for idx, (features, length) in enumerate(zip(self.pose, self.pose_lengths)):
                 features = features.clone()
                 if random_frame_subsampling and is_train:
@@ -88,7 +87,6 @@ class Batch:
                 tmp_data = tmp_data[init_frame::frame_subsampling_ratio]
                 tmp_pose[idx, 0 : tmp_data.shape[0]] = tmp_data
                 tmp_pose_lengths[idx] = tmp_data.shape[0]
-
             self.pose = tmp_pose[:, : tmp_pose_lengths.max().long(), :]
             self.pose_lengths = tmp_pose_lengths
 
@@ -121,7 +119,8 @@ class Batch:
             self.pose = tmp_pose
 
         self.sgn_mask = (self.sgn != torch.zeros(self.sgn_dim))[..., 0].unsqueeze(1)
-        self.pose_mask = (self.pose != torch.zeros(self.pose_dim))[..., 0].unsqueeze(1)
+        #self.pose_mask = (self.pose != torch.zeros(self.pose_dim))[..., 0].unsqueeze(1)
+        self.pose_mask = ((self.pose != torch.zeros(self.pose_dim)).sum(dim = 2) != 0)[:, None, :]
 
         # Text
         self.txt = None
