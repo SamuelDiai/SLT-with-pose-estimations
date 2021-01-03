@@ -269,6 +269,7 @@ class SignModel(nn.Module):
                     batch.gls_lengths.long(),
                 )
                 * recognition_loss_weight
+            print("RECO LOSS : ", recognition_loss)
             )
         else:
             recognition_loss = None
