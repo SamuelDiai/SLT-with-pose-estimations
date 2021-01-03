@@ -106,7 +106,6 @@ class SignModel(nn.Module):
         :param txt_mask: target mask
         :return: decoder outputs
         """
-        print("SGN : ", sgn, "POSE : ", pose)
         encoder_output, encoder_hidden = self.encode(
             sgn=sgn, sgn_mask=sgn_mask, sgn_length=sgn_lengths
         )
@@ -124,8 +123,6 @@ class SignModel(nn.Module):
                 gloss_scores = self.gloss_output_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
             else :
                 gloss_scores = self.gloss_output_layer(encoder_output)
-
-            print(gloss_scores)
             # N x T x C
             gloss_probabilities = gloss_scores.log_softmax(2)
             # Turn it into T x N x C
@@ -163,7 +160,6 @@ class SignModel(nn.Module):
         :return: encoder outputs (output, hidden_concat)
         """
         t = self.sgn_embed(x=sgn, mask=sgn_mask)
-        print("EMBED_SRC : ", t)
         return self.encoder(
             embed_src=t,
             src_length=sgn_length,
@@ -181,9 +177,7 @@ class SignModel(nn.Module):
         :param sgn_length:
         :return: encoder outputs (output, hidden_concat)
         """
-        print(pose, pose_mask)
         t = self.pose_embed(x=pose, mask=pose_mask)
-        print("EMBED_SRC_POSE : ", t)
 
         return self.encoder_pose(
             embed_src=t,
@@ -264,8 +258,6 @@ class SignModel(nn.Module):
             txt_input=batch.txt_input,
             txt_mask=batch.txt_mask
         )
-        print(" DECODER_OUPUT : ", decoder_outputs, "GLOSS_proba : ", gloss_probabilities, "BATCH GLOSS : ", batch.gls)
-
         if self.do_recognition:
             assert gloss_probabilities is not None
             # Calculate Recognition Loss
