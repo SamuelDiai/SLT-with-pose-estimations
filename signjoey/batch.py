@@ -51,6 +51,9 @@ class Batch:
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
             self.sgn_dim = sgn_dim + self.pose_dim
+        elif fusion_type == 'only_pose':
+            self.sgn = torch.cat([torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
+            self.sgn_dim = self.pose_dim
         else :
             self.sgn_dim = sgn_dim
         # Here be dragons
