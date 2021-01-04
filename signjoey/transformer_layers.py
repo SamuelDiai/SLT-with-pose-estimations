@@ -50,11 +50,13 @@ class MultiHeadedAttention(nn.Module):
         """
         batch_size = k.size(0)
         num_heads = self.num_heads
-
+        print("before project: ", "MIN : ", k.min(), "MAX : ", k.max(),"MIN : ", v.min(), "MAX : ", v.max(), "MIN : ", q.min(), "MAX : ", q.max())
         # project the queries (q), keys (k), and values (v)
         k = self.k_layer(k)
         v = self.v_layer(v)
         q = self.q_layer(q)
+
+        print("after project: ", "MIN : ", k.min(), "MAX : ", k.max(),"MIN : ", v.min(), "MAX : ", v.max(), "MIN : ", q.min(), "MAX : ", q.max())
 
         # reshape q, k, v for our computation to [batch_size, num_heads, ..]
         k = k.view(batch_size, -1, num_heads, self.head_size).transpose(1, 2)
@@ -62,19 +64,24 @@ class MultiHeadedAttention(nn.Module):
         q = q.view(batch_size, -1, num_heads, self.head_size).transpose(1, 2)
 
         # compute scores
+
         q = q / math.sqrt(self.head_size)
+        print("after scores: ", "MIN : ", q.min(), "MAX : ", q.max())
 
         # batch x num_heads x query_len x key_len
         scores = torch.matmul(q, k.transpose(2, 3))
+        print("after mul: ", "MIN : ", scores.min(), "MAX : ", scores.max())
 
         # apply the mask (if we have one)
         # we add a dimension for the heads to it below: [B, 1, 1, M]
         if mask is not None:
             scores = scores.masked_fill(~mask.unsqueeze(1), float("-inf"))
-
+        print("after mask: ", "MIN : ", scores.min(), "MAX : ", scores.max())
         # apply attention dropout and compute context vectors.
         attention = self.softmax(scores)
+        print("after softmax: ", "MIN : ", attention.min(), "MAX : ", attention.max())
         attention = self.dropout(attention)
+        print("after dropout: ", "MIN : ", attention.min(), "MAX : ", attention.max())
 
         # get context vector (select values with attention) and reshape
         # back to [B, M, D]
@@ -205,15 +212,11 @@ class TransformerEncoderLayer(nn.Module):
         :param mask: input mask
         :return: output tensor
         """
-        print("before layer_norm: ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x_norm = self.layer_norm(x)
-        print("before src src: ", x_norm, "MIN : ", x_norm.min(), "MAX : ", x_norm.max())
         h = self.src_src_att(x_norm, x_norm, x_norm, mask)
         print("before dropout: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         h = self.dropout(h) + x
-        print("before ff: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         o = self.feed_forward(h)
-        print("after ff: ", o, "MIN : ", o.min(), "MAX : ", o.max())
         return o
 
 
