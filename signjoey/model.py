@@ -281,7 +281,6 @@ class SignModel(nn.Module):
             # Calculate Translation Loss
             print("WORDS OUTPUTS : ", word_outputs, "MIN : ", word_outputs.min(), "MAX : ", word_outputs.max())
             txt_log_probs = F.log_softmax(word_outputs, dim=-1)
-            print("AFTER SLOG SOFTMAX : ", txt_log_probs, "MIN : ", txt_log_probs.min(), "MAX : ", txt_log_probs.max())
             translation_loss = (
                 translation_loss_function(txt_log_probs, batch.txt)
                 * translation_loss_weight

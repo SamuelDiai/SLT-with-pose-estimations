@@ -566,8 +566,9 @@ class TransformerDecoder(Decoder):
         :return:
         """
         assert trg_mask is not None, "trg_mask required for Transformer"
-
+        print("before_pe : ", trg_embed, "MIN : ", trg_embed.min(), "MAX : ", trg_embed.max())
         x = self.pe(trg_embed)  # add position encoding to word embedding
+        print("before_emb_dropout : ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x = self.emb_dropout(x)
 
 
@@ -583,13 +584,17 @@ class TransformerDecoder(Decoder):
             encoder_output = self.merge_layer(torch.cat([encoder_output, encoder_output_pose], dim = 2))
 
         for layer in self.layers:
+            print("before layer: ", x, "MIN : ", x.min(), "MAX : ", x.max())
             x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
+        print("before_layer_norm : ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x = self.layer_norm(x)
 
         ## MERGE IF LATE FUSION
         if fusion_type == 'late_fusion':
             x = torch.cat([x, x_pose], dim = 2)
+        print("before_output_layer : ", x, "MIN : ", x.min(), "MAX : ", x.max())
         output = self.output_layer(x)
+        print("after_output_layer : ", output, "MIN : ", output.min(), "MAX : ", output.max())
         return output, x, None, None
 
     def __repr__(self):

@@ -45,11 +45,11 @@ class MaskedNorm(nn.Module):
         super().__init__()
         self.norm_type = norm_type
         if self.norm_type == "batch":
-            self.norm = nn.BatchNorm1d(num_features=num_features)
+            self.norm = nn.BatchNorm1d(num_features=num_features, eps=1e-6)
         elif self.norm_type == "group":
-            self.norm = nn.GroupNorm(num_groups=num_groups, num_channels=num_features)
+            self.norm = nn.GroupNorm(num_groups=num_groups, num_channels=num_features, eps=1e-6)
         elif self.norm_type == "layer":
-            self.norm = nn.LayerNorm(normalized_shape=num_features)
+            self.norm = nn.LayerNorm(normalized_shape=num_features, eps=1e-6)
         else:
             raise ValueError("Unsupported Normalization Layer")
 
