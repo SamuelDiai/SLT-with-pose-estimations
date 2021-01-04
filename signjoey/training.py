@@ -782,13 +782,13 @@ class TrainManager:
         total_loss = normalized_recognition_loss + normalized_translation_loss
         # compute gradients
         total_loss.backward()
+        print("GRADS : ", total_loss.grad)
 
         if self.clip_grad_fun is not None:
             # clip gradients (in-place)
-            print("CLIPPING")
             self.clip_grad_fun(params=self.model.parameters())
 
-        if True:#update:
+        if update:
             # make gradient step
             self.optimizer.step()
             self.optimizer.zero_grad()
