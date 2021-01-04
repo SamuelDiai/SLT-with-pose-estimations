@@ -2,7 +2,7 @@
 import torch
 
 torch.backends.cudnn.deterministic = True
-
+torch.autograd.detect_anomaly(True)
 import argparse
 import numpy as np
 import os
