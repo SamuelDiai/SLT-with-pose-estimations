@@ -248,6 +248,8 @@ class SignModel(nn.Module):
         # pylint: disable=unused-variable
 
         # Do a forward pass
+        print("POSE : ", batch.pose)
+        print("POSE mask: ", batch.pose_mask)
         decoder_outputs, gloss_probabilities = self.forward(
             pose=batch.pose,
             sgn=batch.sgn,
