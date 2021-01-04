@@ -785,9 +785,10 @@ class TrainManager:
 
         if self.clip_grad_fun is not None:
             # clip gradients (in-place)
+            print("CLIPPING")
             self.clip_grad_fun(params=self.model.parameters())
 
-        if update:
+        if True:#update:
             # make gradient step
             self.optimizer.step()
             self.optimizer.zero_grad()
