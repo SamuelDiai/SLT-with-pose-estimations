@@ -782,7 +782,6 @@ class TrainManager:
         total_loss = normalized_recognition_loss + normalized_translation_loss
         # compute gradients
         total_loss.backward()
-        print("GRADS : ", total_loss.grad)
 
         if self.clip_grad_fun is not None:
             # clip gradients (in-place)
@@ -997,7 +996,6 @@ def train(cfg_file: str) -> None:
             sgn_dim =  cfg["data"]["feature_size"] + add_dim
     else :
         sgn_dim = add_dim
-    print("SGN DIM : ", sgn_dim)
     model = build_model(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,

@@ -248,8 +248,6 @@ class SignModel(nn.Module):
         # pylint: disable=unused-variable
 
         # Do a forward pass
-        print("POSE : ", batch.pose)
-        print("POSE mask: ", batch.pose_mask)
         decoder_outputs, gloss_probabilities = self.forward(
             pose=batch.pose,
             sgn=batch.sgn,
@@ -274,12 +272,10 @@ class SignModel(nn.Module):
             )
         else:
             recognition_loss = None
-        print("RECO LOSS : ", recognition_loss)
         if self.do_translation:
             assert decoder_outputs is not None
             word_outputs, _, _, _ = decoder_outputs
             # Calculate Translation Loss
-            print("WORDS OUTPUTS : ", word_outputs, "MIN : ", word_outputs.min(), "MAX : ", word_outputs.max())
             txt_log_probs = F.log_softmax(word_outputs, dim=-1)
             translation_loss = (
                 translation_loss_function(txt_log_probs, batch.txt)
@@ -287,7 +283,6 @@ class SignModel(nn.Module):
             )
         else:
             translation_loss = None
-        print("TRANS LOSS : ", translation_loss)
         return recognition_loss, translation_loss
 
     def run_batch(

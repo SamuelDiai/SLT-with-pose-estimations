@@ -50,13 +50,10 @@ class MultiHeadedAttention(nn.Module):
         """
         batch_size = k.size(0)
         num_heads = self.num_heads
-        print("before project: ", "MIN : ", k.min(), "MAX : ", k.max(),"MIN : ", v.min(), "MAX : ", v.max(), "MIN : ", q.min(), "MAX : ", q.max())
         # project the queries (q), keys (k), and values (v)
         k = self.k_layer(k)
         v = self.v_layer(v)
         q = self.q_layer(q)
-
-        print("after project: ", "MIN : ", k.min(), "MAX : ", k.max(),"MIN : ", v.min(), "MAX : ", v.max(), "MIN : ", q.min(), "MAX : ", q.max())
 
         # reshape q, k, v for our computation to [batch_size, num_heads, ..]
         k = k.view(batch_size, -1, num_heads, self.head_size).transpose(1, 2)

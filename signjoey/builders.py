@@ -42,7 +42,6 @@ def build_gradient_clipper(config: dict) -> Optional[Callable]:
 
     if "clip_grad_val" in config.keys() and "clip_grad_norm" in config.keys():
         raise ValueError("You can only specify either clip_grad_val or clip_grad_norm.")
-    print(clip_grad_fun)
     return clip_grad_fun
 
 
