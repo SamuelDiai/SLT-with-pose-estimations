@@ -213,6 +213,7 @@ class TransformerEncoderLayer(nn.Module):
         :return: output tensor
         """
         x_norm = self.layer_norm(x)
+        print("X_norm : ", x_norm, "mask  : ", mask)
         h = self.src_src_att(x_norm, x_norm, x_norm, mask)
         print("before dropout: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         h = self.dropout(h) + x
