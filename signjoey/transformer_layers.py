@@ -66,22 +66,21 @@ class MultiHeadedAttention(nn.Module):
         # compute scores
 
         q = q / math.sqrt(self.head_size)
-        print("after scores: ", "MIN : ", q.min(), "MAX : ", q.max())
 
         # batch x num_heads x query_len x key_len
         scores = torch.matmul(q, k.transpose(2, 3))
-        print("after mul: ", "MIN : ", scores.min(), "MAX : ", scores.max())
 
         # apply the mask (if we have one)
         # we add a dimension for the heads to it below: [B, 1, 1, M]
         if mask is not None:
             scores = scores.masked_fill(~mask.unsqueeze(1), float("-inf"))
-        print("after mask: ", "MIN : ", scores.min(), "MAX : ", scores.max())
+
+        last_dim = scores.size()[-1]
+        where_all_inf = (torch.isinf(scores).sum(dim = -1) == last_dim)
+        scores[where_all_inf] = 1/last_dim
         # apply attention dropout and compute context vectors.
         attention = self.softmax(scores)
-        print("after softmax: ", "MIN : ", attention.min(), "MAX : ", attention.max())
         attention = self.dropout(attention)
-        print("after dropout: ", "MIN : ", attention.min(), "MAX : ", attention.max())
 
         # get context vector (select values with attention) and reshape
         # back to [B, M, D]
@@ -213,9 +212,7 @@ class TransformerEncoderLayer(nn.Module):
         :return: output tensor
         """
         x_norm = self.layer_norm(x)
-        print("X_norm : ", x_norm, "mask  : ", mask)
         h = self.src_src_att(x_norm, x_norm, x_norm, mask)
-        print("before dropout: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         h = self.dropout(h) + x
         o = self.feed_forward(h)
         return o
