@@ -205,10 +205,15 @@ class TransformerEncoderLayer(nn.Module):
         :param mask: input mask
         :return: output tensor
         """
+        print("before layer_norm: ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x_norm = self.layer_norm(x)
+        print("before src src: ", x_norm, "MIN : ", x_norm.min(), "MAX : ", x_norm.max())
         h = self.src_src_att(x_norm, x_norm, x_norm, mask)
+        print("before dropout: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         h = self.dropout(h) + x
+        print("before ff: ", h, "MIN : ", h.min(), "MAX : ", h.max())
         o = self.feed_forward(h)
+        print("after ff: ", o, "MIN : ", o.min(), "MAX : ", o.max())
         return o
 
 

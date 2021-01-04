@@ -566,9 +566,7 @@ class TransformerDecoder(Decoder):
         :return:
         """
         assert trg_mask is not None, "trg_mask required for Transformer"
-        print("before_pe : ", trg_embed, "MIN : ", trg_embed.min(), "MAX : ", trg_embed.max())
         x = self.pe(trg_embed)  # add position encoding to word embedding
-        print("before_emb_dropout : ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x = self.emb_dropout(x)
 
 
@@ -586,7 +584,6 @@ class TransformerDecoder(Decoder):
         for layer in self.layers:
             print("before layer: ", x, "MIN : ", x.min(), "MAX : ", x.max())
             x = layer(x=x, memory=encoder_output, src_mask=src_mask, trg_mask=trg_mask)
-        print("before_layer_norm : ", x, "MIN : ", x.min(), "MAX : ", x.max())
         x = self.layer_norm(x)
 
         ## MERGE IF LATE FUSION
