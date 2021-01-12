@@ -48,7 +48,8 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
     """
 
     data_path = data_cfg.get("data_path", "./data")
-
+    pose_type = data_cfg['pose_type']
+    dict_pose_type_shape = {'2d' : 2, '3d' : 3}
     if isinstance(data_cfg["train"], list):
         train_paths = [os.path.join(data_path, x) for x in data_cfg["train"]]
         dev_paths = [os.path.join(data_path, x) for x in data_cfg["dev"]]
@@ -127,7 +128,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
         batch_first=True,
         include_lengths=True,
         postprocessing=stack_features,
-        pad_token=torch.zeros((2*84,))
+        pad_token=torch.zeros((dict_pose_type_shape[pose_type]*84,))
     )
     keypoints_body_field = data.Field(
             use_vocab=False,
@@ -138,7 +139,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             batch_first=True,
             include_lengths=True,
             postprocessing=stack_features,
-            pad_token=torch.zeros((2*13,))
+            pad_token=torch.zeros((dict_pose_type_shape[pose_type]*13,))
     )
     keypoints_hand_field = data.Field(
             use_vocab=False,
@@ -149,7 +150,7 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
             batch_first=True,
             include_lengths=True,
             postprocessing=stack_features,
-            pad_token=torch.zeros((2*21,))
+            pad_token=torch.zeros((dict_pose_type_shape[pose_type]*42,))
     )
 
 
