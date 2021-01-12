@@ -88,6 +88,8 @@ class SignTranslationDataset(data.Dataset):
             keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face_%s.npy' % pose_type))
             keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body_%s.npy' % pose_type))
             keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand_%s.npy' % pose_type))
+            if keypoints_hand.shape[1] != 42:
+                print(keypoints_hand.shape)
             examples.append(
                 data.Example.fromlist(
                     [
