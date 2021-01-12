@@ -292,10 +292,10 @@ def beam_search(
         encoder_output_pose = tile(
             encoder_output_pose.contiguous(), size, dim=0
         )
-        pose_mask = tile(pose_mask, size, dim=0)
+        src_pose = tile(src_pose, size, dim=0)
     else :
         encoder_output_pose = None
-        pose_mask = None
+        src_pose = None
 
     # Transformer only: create target mask
     if transformer:
@@ -358,7 +358,7 @@ def beam_search(
             encoder_output_pose=encoder_output_pose,
             encoder_hidden_pose=encoder_hidden_pose,
             fusion_type=fusion_type,
-            pose_mask=pose_mask,
+            src_pose=src_pose,
             src_mask=src_mask,
             trg_embed=trg_embed,
             hidden=hidden,
