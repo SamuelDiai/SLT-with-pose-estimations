@@ -155,7 +155,8 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
 
     train_data = SignTranslationDataset(
         path=train_paths,
-        path_posestimation='/home/diai_samuel/slt/data/train_posestimation',
+        pose_type=data_cfg['pose_type'],
+        path_posestimation='/home/diai_samuel/slt/data/data_final/train__posestimation',
         fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
         filter_pred=lambda x: len(vars(x)["sgn"]) <= max_sent_length
         and len(vars(x)["txt"]) <= max_sent_length,
@@ -194,7 +195,8 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
 
     dev_data = SignTranslationDataset(
         path=dev_paths,
-        path_posestimation='/home/diai_samuel/slt/data/dev_posestimation',
+        pose_type=data_cfg['pose_type'],
+        path_posestimation='/home/diai_samuel/slt/data/data_final/dev__posestimation',
         fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
     )
     random_dev_subset = data_cfg.get("random_dev_subset", -1)
@@ -209,7 +211,8 @@ def load_data(data_cfg: dict) -> (Dataset, Dataset, Dataset, Vocabulary, Vocabul
     # check if target exists
     test_data = SignTranslationDataset(
         path=test_paths,
-        path_posestimation='/home/diai_samuel/slt/data/test_posestimation',
+        pose_type=data_cfg['pose_type'],
+        path_posestimation='/home/diai_samuel/slt/data/data_final/test__posestimation',
         fields=(sequence_field, signer_field, sgn_field, gls_field, txt_field, keypoints_face_field, keypoints_body_field, keypoints_hand_field),
     )
 

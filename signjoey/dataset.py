@@ -27,6 +27,7 @@ class SignTranslationDataset(data.Dataset):
 
         self,
         path: str,
+        pose_type : str,
         path_posestimation : str,
         fields: Tuple[RawField, RawField, Field, Field, Field, Field, Field, Field],
         **kwargs
@@ -84,9 +85,9 @@ class SignTranslationDataset(data.Dataset):
             sample = samples[s]
             n_timesteps = sample["sign"].size()[0]
             sample_name = sample["name"].split('/')[1]
-            keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face.npy'))
-            keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body.npy'))
-            keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand.npy'))
+            keypoints_face = np.load(os.path.join(path_posestimation, sample_name, 'face_%s.npy' % pose_type))
+            keypoints_body = np.load(os.path.join(path_posestimation, sample_name, 'body_%s.npy' % pose_type))
+            keypoints_hand = np.load(os.path.join(path_posestimation, sample_name, 'hand_%s.npy' % pose_type))
             examples.append(
                 data.Example.fromlist(
                     [
