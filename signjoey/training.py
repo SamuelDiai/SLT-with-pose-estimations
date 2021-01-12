@@ -982,12 +982,12 @@ def train(cfg_file: str) -> None:
     train_data, dev_data, test_data, gls_vocab, txt_vocab = load_data(
         data_cfg=cfg["data"]
     )
-
+    dim_pose = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
     if cfg["model"]["fusion_type"] == 'early_fusion' or cfg["model"]["fusion_type"] == 'only_pose':
-        add_dim = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
+        add_dim = dim_pose
     else :
         add_dim = 0
 
@@ -1002,7 +1002,7 @@ def train(cfg_file: str) -> None:
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
-        pose_dim= 2*84 + 2*21 + 2*13,
+        pose_dim= dim_pose,
         sgn_dim=sgn_dim,
         do_recognition=do_recognition,
         do_translation=do_translation,
