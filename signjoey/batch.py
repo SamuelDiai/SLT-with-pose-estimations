@@ -3,7 +3,7 @@ import math
 import random
 import torch
 import numpy as np
-
+dict_pose_type_shape = {'2d' : 2, '3d' : 3}
 
 class Batch:
     """Object for holding a batch of data with mask during training.
@@ -15,6 +15,7 @@ class Batch:
         torch_batch,
         txt_pad_index,
         sgn_dim,
+        pose_type,
         fusion_type,
         is_train: bool = False,
         use_cuda: bool = False,
@@ -36,6 +37,7 @@ class Batch:
         :param random_frame_subsampling
         """
 
+
         # Sequence Information
         self.sequence = torch_batch.sequence
         self.signer = torch_batch.signer
@@ -46,7 +48,7 @@ class Batch:
         self.keypoints_body = torch_batch.keypoints_body[0]
         self.keypoints_face = torch_batch.keypoints_face[0]
         self.pose =  torch.cat([torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)
-        self.pose_dim = 2*84 + 2*21 + 2*13
+        self.pose_dim = dict_pose_type_shape[pose_type]*84 + dict_pose_type_shape[pose_type]*42 + dict_pose_type_shape[pose_type]*13
         # Concat with pose estimations :
         if fusion_type == 'early_fusion':
             self.sgn = torch.cat([self.sgn, torch_batch.keypoints_hand[0], torch_batch.keypoints_body[0], torch_batch.keypoints_face[0]], dim = 2)

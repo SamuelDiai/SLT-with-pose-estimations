@@ -34,7 +34,7 @@ from torch import Tensor
 from torch.utils.tensorboard import SummaryWriter
 from torchtext.data import Dataset
 from typing import List, Dict
-
+dict_pose_type_shape = {'2d' : 2, '3d' : 3}
 
 # pylint: disable=too-many-instance-attributes
 class TrainManager:
@@ -341,7 +341,7 @@ class TrainManager:
         if self.use_cuda:
             self.model.cuda()
 
-    def train_and_validate(self, train_data: Dataset, valid_data: Dataset, fusion_type: str) -> None:
+    def train_and_validate(self, train_data: Dataset, valid_data: Dataset, fusion_type: str, pose_type: str) -> None:
         """
         Train the model and validate it from time to time on the validation set.
 
@@ -381,6 +381,7 @@ class TrainManager:
                     torch_batch=batch,
                     txt_pad_index=self.txt_pad_index,
                     sgn_dim=self.feature_size,
+                    pose_type=pose_type,
                     fusion_type = fusion_type,
                     use_cuda=self.use_cuda,
                     frame_subsampling_ratio=self.frame_subsampling_ratio,
@@ -472,6 +473,7 @@ class TrainManager:
                         sgn_dim=self.feature_size,
                         txt_pad_index=self.txt_pad_index,
                         fusion_type=fusion_type,
+                        pose_type=pose_type,
                         # Recognition Parameters
                         do_recognition=self.do_recognition,
                         recognition_loss_function=self.recognition_loss_function
@@ -985,7 +987,7 @@ def train(cfg_file: str) -> None:
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
     if cfg["model"]["fusion_type"] == 'early_fusion' or cfg["model"]["fusion_type"] == 'only_pose':
-        add_dim = 2*84 + 2*21 + 2*13
+        add_dim = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
     else :
         add_dim = 0
 
@@ -1033,7 +1035,7 @@ def train(cfg_file: str) -> None:
     txt_vocab.to_file(txt_vocab_file)
 
     # train the model
-    trainer.train_and_validate(train_data=train_data, valid_data=dev_data, fusion_type = cfg["model"]["fusion_type"])
+    trainer.train_and_validate(train_data=train_data, valid_data=dev_data, fusion_type = cfg["model"]["fusion_type"], pose_type = cfg["data"]["pose_type"])
     # Delete to speed things up as we don't need training data anymore
     del train_data, dev_data, test_data
 

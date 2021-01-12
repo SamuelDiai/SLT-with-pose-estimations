@@ -27,7 +27,7 @@ from signjoey.phoenix_utils.phoenix_cleanup import (
     clean_phoenix_2014,
     clean_phoenix_2014_trans,
 )
-
+dict_pose_type_shape = {'2d' : 2, '3d' : 3}
 
 # pylint: disable=too-many-arguments,too-many-locals,no-member
 def validate_on_data(
@@ -46,6 +46,7 @@ def validate_on_data(
     level: str,
     txt_pad_index: int,
     fusion_type :str,
+    pose_type : str,
     recognition_beam_size: int = 1,
     translation_beam_size: int = 1,
     translation_beam_alpha: int = -1,
@@ -129,6 +130,7 @@ def validate_on_data(
                 torch_batch=valid_batch,
                 txt_pad_index=txt_pad_index,
                 sgn_dim=sgn_dim,
+                pose_type=pose_type,
                 fusion_type=fusion_type,
                 use_cuda=use_cuda,
                 frame_subsampling_ratio=frame_subsampling_ratio,
@@ -332,7 +334,7 @@ def test(
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
     if cfg["model"]["fusion_type"] == 'early_fusion' or cfg["model"]["fusion_type"] == 'only_pose':
-        add_dim = 2*84 + 2*21 + 2*13
+        add_dim = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
     else :
         add_dim = 0
 
@@ -410,6 +412,7 @@ def test(
                 batch_size=batch_size,
                 use_cuda=use_cuda,
                 batch_type=batch_type,
+                pose_type=pose_type,
                 dataset_version=dataset_version,
                 sgn_dim=sum(cfg["data"]["feature_size"])
                 if isinstance(cfg["data"]["feature_size"], list)
@@ -475,6 +478,7 @@ def test(
                     use_cuda=use_cuda,
                     level=level,
                     fusion_type=cfg["model"]["fusion_type"],
+                    pose_type=cfg['data']['pose_type'],
                     sgn_dim=sum(cfg["data"]["feature_size"])
                     if isinstance(cfg["data"]["feature_size"], list)
                     else cfg["data"]["feature_size"],
@@ -580,6 +584,7 @@ def test(
         batch_type=batch_type,
         dataset_version=dataset_version,
         fusion_type=cfg["model"]["fusion_type"],
+        pose_type=cfg['data']['pose_type']
         sgn_dim=sum(cfg["data"]["feature_size"])
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"],
