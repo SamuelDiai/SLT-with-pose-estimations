@@ -294,7 +294,8 @@ def beam_search(
         )
         pose_mask = tile(pose_mask, size, dim=0)
     else :
-        encoder_output_pose, pose_mask = None, None
+        encoder_output_pose = None
+        pose_mask = None
 
     # Transformer only: create target mask
     if transformer:

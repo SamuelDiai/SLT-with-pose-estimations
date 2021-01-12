@@ -377,6 +377,8 @@ class SignModel(nn.Module):
                     size=translation_beam_size,
                     encoder_hidden=encoder_hidden,
                     encoder_output=encoder_output,
+                    encoder_output_pose=encoder_output_pose,
+                    encoder_hidden_pose=encoder_hidden_pose,
                     fusion_type=self.fusion_type,
                     src_mask=batch.sgn_mask,
                     embed=self.txt_embed,
