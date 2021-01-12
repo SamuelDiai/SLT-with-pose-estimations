@@ -8,7 +8,7 @@ data:
     train: PHOENIX2014T/phoenix14t.pami0.train
     dev: PHOENIX2014T/phoenix14t.pami0.dev
     test: PHOENIX2014T/phoenix14t.pami0.test
-    pose_type: 2D
+    pose_type: 2d
     feature_size: 1024
     level: word
     txt_lowercase: true
