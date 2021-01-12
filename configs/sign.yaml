@@ -87,6 +87,7 @@ model:
     initializer: xavier
     bias_initializer: zeros
     init_gain: 1.0
+    fusion_type: late_fusion
     embed_initializer: xavier
     embed_init_gain: 1.0
     tied_softmax: false
