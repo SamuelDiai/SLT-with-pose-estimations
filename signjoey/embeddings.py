@@ -194,9 +194,6 @@ class SpatialEmbeddings(nn.Module):
         self.embedding_dim = embedding_dim
         self.input_size = input_size
         self.ln = nn.Linear(self.input_size, self.embedding_dim)
-        print("PRINT EMB LIN : ", self.ln)
-        print("PRINT EMB LIN  WEIGHT : ", self.ln.weight)
-
         self.norm_type = norm_type
         if self.norm_type:
             self.norm = MaskedNorm(

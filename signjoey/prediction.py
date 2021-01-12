@@ -333,8 +333,9 @@ def test(
     # build model and load parameters into it
     do_recognition = cfg["training"].get("recognition_loss_weight", 1.0) > 0.0
     do_translation = cfg["training"].get("translation_loss_weight", 1.0) > 0.0
+    dim_pose = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
     if cfg["model"]["fusion_type"] == 'early_fusion' or cfg["model"]["fusion_type"] == 'only_pose':
-        add_dim = dict_pose_type_shape[cfg['data']['pose_type']]*84 + dict_pose_type_shape[cfg['data']['pose_type']]*42 + dict_pose_type_shape[cfg['data']['pose_type']]*13
+        add_dim = dim_pose
     else :
         add_dim = 0
 
@@ -349,7 +350,7 @@ def test(
         cfg=cfg["model"],
         gls_vocab=gls_vocab,
         txt_vocab=txt_vocab,
-        pose_dim=add_dim,
+        pose_dim=dim_pose,
         sgn_dim=sgn_dim,
         do_recognition=do_recognition,
         do_translation=do_translation,
