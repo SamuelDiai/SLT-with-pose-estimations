@@ -584,7 +584,7 @@ def test(
         batch_type=batch_type,
         dataset_version=dataset_version,
         fusion_type=cfg["model"]["fusion_type"],
-        pose_type=cfg['data']['pose_type']
+        pose_type=cfg['data']['pose_type'],
         sgn_dim=sum(cfg["data"]["feature_size"])
         if isinstance(cfg["data"]["feature_size"], list)
         else cfg["data"]["feature_size"],
