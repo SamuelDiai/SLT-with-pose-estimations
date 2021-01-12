@@ -412,7 +412,7 @@ def test(
                 batch_size=batch_size,
                 use_cuda=use_cuda,
                 batch_type=batch_type,
-                pose_type=pose_type,
+                pose_type=cfg['data']['pose_type'],
                 dataset_version=dataset_version,
                 sgn_dim=sum(cfg["data"]["feature_size"])
                 if isinstance(cfg["data"]["feature_size"], list)
