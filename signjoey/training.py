@@ -164,6 +164,7 @@ class TrainManager:
         self.use_cuda = train_config["use_cuda"]
         if self.use_cuda:
             print("ITS USING CUDA ! ")
+            print("FUSION TYPE  : ", config['model']['fusion_type'], "2D OR 3D : "; config['data']['pose_type'])
             self.model.cuda()
             if self.do_translation:
                 self.translation_loss_function.cuda()
