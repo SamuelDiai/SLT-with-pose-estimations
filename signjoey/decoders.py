@@ -576,7 +576,6 @@ class TransformerDecoder(Decoder):
         if fusion_type == 'late_fusion':
             x_pose = x.detach().clone()
             for layer in self.layers_pose:
-                print(x_pose.size(), encoder_output_pose, src_pose, trg_mask)
                 x_pose = layer(x=x_pose, memory=encoder_output_pose, src_mask=src_pose, trg_mask=trg_mask)
             x_pose = self.layer_norm_pose(x_pose)
         elif fusion_type == 'mid_fusion':
