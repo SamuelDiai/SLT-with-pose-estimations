@@ -465,6 +465,10 @@ def beam_search(
         encoder_output = encoder_output.index_select(0, select_indices)
         src_mask = src_mask.index_select(0, select_indices)
 
+        if fusion_type == 'late_fusion' or fusion_type == 'mid_fusion':
+            encoder_output_pose = encoder_output_pose.index_select(0, select_indices)
+            src_pose = src_pose.index_select(0, select_indices)
+
         if hidden is not None and not transformer:
             if isinstance(hidden, tuple):
                 # for LSTMs, states are tuples of tensors
