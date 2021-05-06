@@ -1,4 +1,4 @@
-# Sign Language Transformers improved using Keypoints features.
+# Sign Language Transformers improved using Pose estimation Keypoints features.
 
 This repo contains some adaptions and improvements (attempts) I made regarding the code of the paper [Sign Language Transformers: Sign Language Transformers: Joint End-to-end Sign Language Recognition and Translation](https://www.cihancamgoz.com/pub/camgoz2020cvpr.pdf). 
 
